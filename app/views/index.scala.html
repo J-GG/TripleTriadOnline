@@ -1,0 +1,11 @@
+@(message: String)
+
+@main("Welcome to Play") {
+    <div id="card-game"></div>
+    <script src="@routes.Assets.at("node_modules/requirejs/require.js")"></script>
+    <script>
+            require(["assets/js/CardGame"], function (cardGame) {
+                cardGame.start({nodePath: "../../assets/", gamePath: "assets/"}, true);
+            });
+    </script>
+}
