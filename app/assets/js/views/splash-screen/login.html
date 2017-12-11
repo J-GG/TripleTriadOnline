@@ -1,0 +1,29 @@
+<div id="message-login" class="message message--large">
+    <div id="login-choices" class="select-choices">
+        <p id="login-username" class="select-choices__choice message__grid">
+            {{i18n.USERNAME}}
+            <span class="message__value message__value--col-4">
+                <input type='text' class='message__input' maxlength='10' autocomplete="off" spellcheck='false'/>
+            </span>
+        </p>
+
+        <p id="login-password" class="select-choices__choice message__grid">
+            {{i18n.PASSWORD}}
+            <span class="message__value message__value--col-4">
+                <input type='password' class='message__input' maxlength='10' autocomplete="off" spellcheck='false'/>
+            </span>
+        </p>
+
+        <input type="text" style="display: none;"/>
+
+        <div class="message__confirm">
+            {{#if loginForm}}
+            <span class="select-choices__choice">{{i18n.LOG_IN}}</span>
+            {{/if}}
+            {{#unless loginForm}}
+            <span class="select-choices__choice">{{i18n.SIGN_UP}}</span>
+            {{/unless}}
+            <span class="select-choices__choice">{{i18n.CANCEL}}</span>
+        </div>
+    </div>
+</div>

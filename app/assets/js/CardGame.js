@@ -4,7 +4,7 @@
  * Entry point of the card game.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.12.08
+ * @version 17.12.10
  */
 define([], function () {
 
@@ -28,10 +28,10 @@ define([], function () {
          *  - container: Id of the container where the game will be displayed
          *  - nodePath: Path to the node_modules folder containing the dependencies
          *  - gamePath: Path to the card game folder
-         * @param options Options to start the game as a literal object.
+         * @param options Options to start the game as a literal object
          * @since 17.10.30
          */
-        start(options, authenticated) {
+        start(options) {
             //Game options
             window.cardGame = {};
             window.cardGame.nodePath = "./";
@@ -98,7 +98,7 @@ define([], function () {
                             cardGame.$container.html(template(data));
                             baseScript.initViews();
 
-                            Routes.get(Routes.getKeys().SPLASH_SCREEN)(authenticated === true)
+                            Routes.get(Routes.getKeys().SPLASH_SCREEN)()
                         });
                     });
                 });

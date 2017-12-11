@@ -1,9 +1,9 @@
 <div class="board__background board__background--game">
-    <div class="message message--settings">
-        <div class="select-choices ">
+    <div class="message message--large message--settings">
+        <div class="select-choices">
 
             <!-- Name Player 1 -->
-            <p id="setting-player-1" class="select-choices__choice message__setting">
+            <p id="setting-player-1" class="select-choices__choice message__grid">
                 {{i18n.PLAYER_1}}
                 <span class="message__value message__value--col-4">
                     <input type='text' class='message__input' maxlength='10'
@@ -14,7 +14,7 @@
             </p>
 
             <!-- Name Player 2 -->
-            <p id="setting-player-2" class="select-choices__choice message__setting">
+            <p id="setting-player-2" class="select-choices__choice message__grid">
                 {{i18n.PLAYER_2}}
                 <span class="message__value message__value--col-4">
                     <input type='text' class='message__input' maxlength='10'
@@ -25,7 +25,7 @@
             </p>
 
             <!-- Audio -->
-            <p id="setting-audio" class="select-choices__choice message__setting">
+            <p id="setting-audio" class="select-choices__choice message__grid">
                 {{i18n.SOUND}}
                 <span class="message__value message__value--col-4">
                     <span id="setting-audio-on"
@@ -36,7 +36,7 @@
             </p>
 
             <!-- Language -->
-            <p id="setting-language" class="select-choices__choice message__setting">
+            <p id="setting-language" class="select-choices__choice message__grid">
                 {{i18n.LANGUAGE}}
                 <span class="message__value message__value--col-4">
                     <span class='message__check {{#ifEquals lang "en"}}message__check--enabled{{/ifEquals}}'
@@ -47,7 +47,7 @@
             </p>
 
             <!-- Difficulty -->
-            <p id="setting-difficulty" class="select-choices__choice message__setting">
+            <p id="setting-difficulty" class="select-choices__choice message__grid">
                 {{i18n.DIFFICULTY}}
                 <span class="message__value message__value--col-4">
                     <span class='message__check message__check--spacing {{#ifEquals difficulty "EASY"}}message__check--enabled{{/ifEquals}}'
@@ -61,7 +61,7 @@
 
             <!-- Rules -->
             <p>{{i18n.RULES}}</p>
-            <div class="message__setting">
+            <div class="message__grid">
                 <div id="rule-open" class="message__check {{#if open}}message__check--enabled{{/if}}">
                     <div class="select-choices__choice message__label" data-description="{{i18n.OPEN_DESCRIPTION}}">
                         {{i18n.OPEN}}

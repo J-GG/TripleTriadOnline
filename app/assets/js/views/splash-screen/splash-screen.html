@@ -7,8 +7,14 @@
     <div class="card card--back splash-screen__card-5"></div>
     <div class="splash-screen__blink"></div>
     <div class="select-choices splash-screen__menu splash-screen__menu--hidden">
+        {{#if authenticated}}
         <div class="select-choices__choice">{{i18n.ONE_PLAYER}}</div>
         <div class="select-choices__choice">{{i18n.TWO_PLAYER}}</div>
         <div class="select-choices__choice">{{i18n.SETTINGS}}</div>
+        {{/if}}
+        {{#unless authenticated}}
+        <div class="select-choices__choice">{{i18n.LOG_IN}}</div>
+        <div class="select-choices__choice">{{i18n.SIGN_UP}}</div>
+        {{/unless}}
     </div>
 </div>

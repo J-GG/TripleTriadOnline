@@ -5,7 +5,7 @@
  * When a route is invoked, the corresponding method to the key is returned.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.11.12
+ * @version 17.12.10
  */
 define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
         cardGame.gamePath + "js/controllers/SettingsController.js",
@@ -19,15 +19,17 @@ define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
              * @since 17.11.10
              */
             let keys = {
-                DEFAULT: 0,
-                SPLASH_SCREEN: 1,
-                SETTINGS: 2,
-                PLAY: 3,
-                START_GAME: 4,
-                PLAYER_PLAYS_CARD: 5,
-                END_TURN: 6,
-                FINAL_SCREEN: 7,
-                AI_PLAYS_CARD: 8
+                DEFAULT: "DEFAULT",
+                SPLASH_SCREEN: "SPLASH_SCREEN",
+                LOGIN_FORM: "LOGIN_FORM",
+                SIGNUP_FORM: "SIGNUP_FORM",
+                SETTINGS: "SETTINGS",
+                PLAY: "PLAY",
+                START_GAME: "START_GAME",
+                PLAYER_PLAYS_CARD: "PLAYER_PLAYS_CARD",
+                END_TURN: "END_TURN",
+                FINAL_SCREEN: "FINAL_SCREEN",
+                AI_PLAYS_CARD: "AI_PLAYS_CARD"
             };
 
             /**
@@ -37,6 +39,8 @@ define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
             let routes = {
                 [keys.DEFAULT]: SplashScreenController.splashScreen,
                 [keys.SPLASH_SCREEN]: SplashScreenController.splashScreen,
+                [keys.LOGIN_FORM]: SplashScreenController.loginForm,
+                [keys.SIGNUP_FORM]: SplashScreenController.signupForm,
                 [keys.SETTINGS]: SettingsController.settings,
                 [keys.PLAY]: GameController.play,
                 [keys.START_GAME]: GameController.startGame,
