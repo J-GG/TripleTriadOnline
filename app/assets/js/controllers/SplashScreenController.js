@@ -4,7 +4,7 @@
  * Controller for the splash screen.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.12.10
+ * @version 17.12.12
  */
 define([cardGame.gamePath + "js/views/splash-screen/SplashScreenScript.js"], function (splashScreenScript) {
     return (function () {
@@ -21,7 +21,7 @@ define([cardGame.gamePath + "js/views/splash-screen/SplashScreenScript.js"], fun
          * @type {string}
          * @since 17.12.11
          */
-        let TEMPLATE_LOGIN_SIGNUP = cardGame.gamePath + 'js/views/splash-screen/login.html';
+        let TEMPLATE_LOGIN_SIGNUP = cardGame.gamePath + 'js/views/splash-screen/loginSignup.html';
 
         /**
          * Load and display the login or sign up form.

@@ -98,7 +98,20 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                                 break;
                             case 3:
                                 Sound.play(Sound.getKeys().SELECT);
-                                closeLoginSignupForm(e, true);
+
+                                $.post({
+                                    url: "/login",
+                                    contentType: "application/json",
+                                    data: JSON.stringify({
+                                        username: $("#login-username").find("input").val(),
+                                        password: $("#login-password").find("input").val()
+                                    }),
+                                    dataType: "json"
+                                }).done(function (data) {
+                                    closeLoginSignupForm(e, data.authenticated);
+                                }).fail(function () {
+                                    logger.warn("An error occurred while trying to log in");
+                                });
                                 break;
                             case 4:
                                 Sound.play(Sound.getKeys().CANCEL);
