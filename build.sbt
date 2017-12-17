@@ -2,13 +2,17 @@ name := "TripleTriadOnline"
 
 version := "1.0"
 
-lazy val `untitled` = (project in file(".")).enablePlugins(PlayJava, SbtWeb)
+lazy val `root` = (project in file(".")).enablePlugins(PlayJava, SbtWeb, PlayEbean)
 
 scalaVersion := "2.11.7"
 
-libraryDependencies ++= Seq(javaJdbc, filters, javaWs, guice)
-
-resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
+libraryDependencies ++= Seq(javaJdbc,
+  filters,
+  javaWs,
+  guice,
+  "org.postgresql" % "postgresql" % "9.4.1212.jre7",
+  "org.mindrot" % "jbcrypt" % "0.3m"
+)
 
 includeFilter in(Assets, LessKeys.less) := "*.less"
 LessKeys.compress in Assets := true

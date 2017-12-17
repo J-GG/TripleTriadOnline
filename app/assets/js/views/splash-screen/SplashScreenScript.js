@@ -4,44 +4,59 @@
  * Manage the main menu.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.12.11
+ * @version 17.12.17
  */
 define([cardGame.gamePath + "js/views/common/Common.js",
     cardGame.gamePath + "js/toolbox/Key.js",
-    cardGame.gamePath + "js/views/common/Sound.js"], function (Common, Key, Sound) {
+    cardGame.gamePath + "js/views/common/Sound.js",
+    cardGame.gamePath + "js/views/common/Forms.js"], function (Common, Key, Sound, Forms) {
 
     /**
-     * Manage the main menu.
-     * @param authenticated true if the user is authenticated
+     * Manage the main menu for authenticated users.
      * @since 17.12.11
      */
-    function showMenu(authenticated) {
+    function showMenuAuthenticated() {
         cardGame.$container.find(".splash-screen__menu").removeClass("splash-screen__menu--hidden");
         Common.linearChoice({}, function (e) {
             switch (e.key) {
                 case Key.ENTER:
+                    Sound.play(Sound.getKeys().SELECT);
                     switch (e.choice) {
                         case 1:
-                            Sound.play(Sound.getKeys().SELECT);
-                            if (authenticated) {
-                                Routes.get(Routes.getKeys().PLAY)(true);
-                            } else {
-                                cardGame.$container.find(".cursor").remove();
-                                Routes.get(Routes.getKeys().LOGIN_FORM)();
-                            }
+                            Routes.get(Routes.getKeys().PLAY)(true);
                             break;
                         case 2:
-                            Sound.play(Sound.getKeys().SELECT);
-                            if (authenticated) {
-                                Routes.get(Routes.getKeys().PLAY)();
-                            } else {
-                                cardGame.$container.find(".cursor").remove();
-                                Routes.get(Routes.getKeys().SIGNUP_FORM)();
-                            }
+                            Routes.get(Routes.getKeys().PLAY)();
+                            break;
+                        case 3:
+                            Routes.get(Routes.getKeys().SETTINGS)();
                             break;
                         default:
-                            Sound.play(Sound.getKeys().SELECT);
-                            Routes.get(Routes.getKeys().SETTINGS)();
+                            Routes.get(Routes.getKeys().LOGOUT)();
+                            break;
+                    }
+                    break;
+            }
+        });
+    }
+
+    /**
+     * Manage the main menu for non authenticated users.
+     * @since 17.122.17
+     */
+    function showMenuNonAuthenticated() {
+        cardGame.$container.find(".splash-screen__menu").removeClass("splash-screen__menu--hidden");
+        Common.linearChoice({}, function (e) {
+            switch (e.key) {
+                case Key.ENTER:
+                    Sound.play(Sound.getKeys().SELECT);
+                    cardGame.$container.find(".cursor").remove();
+                    switch (e.choice) {
+                        case 1:
+                            Routes.get(Routes.getKeys().LOGIN_FORM)();
+                            break;
+                        default:
+                            Routes.get(Routes.getKeys().SIGNUP_FORM)();
                             break;
                     }
                     break;
@@ -62,8 +77,67 @@ define([cardGame.gamePath + "js/views/common/Common.js",
         if (authenticated) {
             Routes.get(Routes.getKeys().SPLASH_SCREEN)();
         } else {
-            showMenu(false);
+            showMenuNonAuthenticated();
         }
+    }
+
+    /**
+     * Manage the login and sign up forms.
+     * @param url url for the AJAX request
+     * @since 17.12.17
+     */
+    function manageLoginSignupForm(url) {
+        Common.linearChoice({selector: "#login-choices", unbindOnEnter: false}, function (e) {
+            switch (e.key) {
+                case Key.ENTER:
+                    switch (e.choice) {
+                        case 1:
+                            Sound.play(Sound.getKeys().SELECT);
+                            cardGame.$container.find("#login-username input").focus();
+                            break;
+                        case 2:
+                            Sound.play(Sound.getKeys().SELECT);
+                            cardGame.$container.find("#login-password input").focus();
+                            break;
+                        case 3:
+                            Sound.play(Sound.getKeys().SELECT);
+                            let data = {};
+                            let $username = $("#login-username").find("input");
+                            let $password = $("#login-password").find("input");
+                            data[$username.attr("name")] = $username.val();
+                            data[$password.attr("name")] = $password.val();
+                            let $form = $("#login-signup-form");
+                            Forms.clearErrorMessages($form);
+                            $.post({
+                                url: url,
+                                data: data,
+                                dataType: "json"
+                            }).done(function (data) {
+                                if (data.errors === undefined) {
+                                    Routes.get(Routes.getKeys().SPLASH_SCREEN)();
+                                } else {
+                                    Forms.showErrorMessages($form, data.errors);
+                                }
+                            });
+                            break;
+                        case 4:
+                            Sound.play(Sound.getKeys().CANCEL);
+                            closeLoginSignupForm(e, false);
+                            break;
+                    }
+                    break;
+
+                case Key.ESCAPE:
+                    Sound.play(Sound.getKeys().CANCEL);
+                    closeLoginSignupForm(e, false);
+                    break;
+
+                case Key.DOWN:
+                case Key.UP:
+                    $("input").blur();
+                    cardGame.$container.find(".board").focus();
+            }
+        });
     }
 
     return {
@@ -74,63 +148,28 @@ define([cardGame.gamePath + "js/views/common/Common.js",
          */
         showMenu(authenticated) {
             setTimeout(function () {
-                showMenu(authenticated);
+                if (authenticated) {
+                    showMenuAuthenticated();
+                } else {
+                    showMenuNonAuthenticated();
+                }
             }, 1500);
         },
 
         /**
-         * Manage the login or sign up form.
-         * @param loginForm true is the login form is shown
-         * @since 17.12.11
+         * Manage the login form.
+         * @since 17.12.17
          */
-        showLoginSignupForm(loginForm){
-            Common.linearChoice({selector: "#login-choices", unbindOnEnter: false}, function (e) {
-                switch (e.key) {
-                    case Key.ENTER:
-                        switch (e.choice) {
-                            case 1:
-                                Sound.play(Sound.getKeys().SELECT);
-                                cardGame.$container.find("#login-username input").focus();
-                                break;
-                            case 2:
-                                Sound.play(Sound.getKeys().SELECT);
-                                cardGame.$container.find("#login-password input").focus();
-                                break;
-                            case 3:
-                                Sound.play(Sound.getKeys().SELECT);
+        showLoginForm() {
+            manageLoginSignupForm("/login");
+        },
 
-                                $.post({
-                                    url: "/login",
-                                    contentType: "application/json",
-                                    data: JSON.stringify({
-                                        username: $("#login-username").find("input").val(),
-                                        password: $("#login-password").find("input").val()
-                                    }),
-                                    dataType: "json"
-                                }).done(function (data) {
-                                    closeLoginSignupForm(e, data.authenticated);
-                                }).fail(function () {
-                                    logger.warn("An error occurred while trying to log in");
-                                });
-                                break;
-                            case 4:
-                                Sound.play(Sound.getKeys().CANCEL);
-                                closeLoginSignupForm(e, false);
-                                break;
-                        }
-                        break;
-
-                    case Key.ESCAPE:
-                        Sound.play(Sound.getKeys().CANCEL);
-                        closeLoginSignupForm(e, false);
-                        break;
-
-                    case Key.DOWN:
-                    case Key.UP:
-                        $("input").blur();
-                        cardGame.$container.find(".board").focus();
-                }
-            });
+        /**
+         * Manage the sign up form.
+         * @since 17.12.17
+         */
+        showSignupForm() {
+            manageLoginSignupForm("/signup");
         }
     }
 });

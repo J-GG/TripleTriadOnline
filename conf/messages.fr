@@ -1,0 +1,2 @@
+LOGIN.FAILURE=Le nom d'utilisateur et le mot de passe ne correspondent pas
+SIGNUP.DUPLICATE=Le nom d'utilisateur est déjà utilisé

@@ -4,15 +4,16 @@
  * The english (and default) wording of the game.
  * @author Jean-Gabriel Genest
  * @since 17.11.12
- * @version 17.12.10
+ * @version 17.12.17
  */
 define([], function () {
     return {
         ONE_PLAYER: "1 player",
         TWO_PLAYER: "2 players",
         SETTINGS: "Settings",
-        SIGN_UP: "Sign up",
-        LOG_IN: "Log in",
+        SIGNUP: "Signup",
+        LOGIN: "Login",
+        LOGOUT: "Logout",
         CANCEL: "Cancel",
         USERNAME: "Username",
         PASSWORD: "Password",

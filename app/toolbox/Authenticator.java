@@ -1,5 +1,6 @@
 package toolbox;
 
+import models.MemberModel;
 import play.mvc.Http;
 import play.mvc.Security;
 
@@ -13,6 +14,20 @@ import play.mvc.Security;
 public class Authenticator extends Security.Authenticator {
     @Override
     public String getUsername(final Http.Context ctx) {
-        return "true";
+        String memberUid = ctx.session().get("memberUid");
+
+        if(memberUid != null) {
+            final MemberModel member = MemberModel.find.query()
+                    .where()
+                    .eq("uid", memberUid)
+                    .findUnique();
+
+            if(member != null){
+                ctx.args.put("member", member);
+            }
+        }
+
+        ctx.session().clear();
+        return null;
     }
 }

@@ -4,15 +4,16 @@
  * The french wording of the game. Overwrite default values.
  * @author Jean-Gabriel Genest
  * @since 17.11.12
- * @version 17.12.10
+ * @version 17.12.17
  */
 define([cardGame.gamePath + "js/lang/i18n_en.js"], function (i18nDefault) {
     let i18nFR = {
         ONE_PLAYER: "1 joueur",
         TWO_PLAYER: "2 joueurs",
         SETTINGS: "Paramètres",
-        SIGN_UP: "Inscription",
-        LOG_IN: "Connexion",
+        SIGNUP: "Inscription",
+        LOGIN: "Connexion",
+        LOGOUT: "Déconnexion",
         CANCEL: "Annuler",
         USERNAME: "Nom d'utilisateur",
         PASSWORD: "Mot de passe",

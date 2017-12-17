@@ -1,0 +1,2 @@
+LOGIN.FAILURE=The username and the password don't match
+SIGNUP.DUPLICATE=The username already exists

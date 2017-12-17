@@ -1,29 +1,37 @@
 <div id="message-login" class="message message--large">
     <div id="login-choices" class="select-choices">
-        <p id="login-username" class="select-choices__choice message__grid">
-            {{i18n.USERNAME}}
-            <span class="message__value message__value--col-4">
-                <input type='text' class='message__input' maxlength='10' autocomplete="off" spellcheck='false'/>
-            </span>
-        </p>
+        <form id="login-signup-form" method="POST">
+            <p id="login-username" class="select-choices__choice message__grid">
+                {{i18n.USERNAME}}
+                <span class="message__value message__value--col-4">
+                    <input name="username" type='text' class='message__input' maxlength='10' autocomplete="off"
+                           spellcheck='false'/>
+                </span>
+            </p>
+            <p class="error-username form__error-message form__error-message--center"></p>
 
-        <p id="login-password" class="select-choices__choice message__grid">
-            {{i18n.PASSWORD}}
-            <span class="message__value message__value--col-4">
-                <input type='password' class='message__input' maxlength='10' autocomplete="off" spellcheck='false'/>
-            </span>
-        </p>
+            <p id="login-password" class="select-choices__choice message__grid">
+                {{i18n.PASSWORD}}
+                <span class="message__value message__value--col-4">
+                    <input name="password" type='password' class='message__input' autocomplete="off"
+                           spellcheck='false'/>
+                </span>
+            </p>
+            <p class="error-password form__error-message form__error-message--center"></p>
 
-        <input type="text" style="display: none;"/>
+            <input type="text" style="display: none;"/>
 
-        <div class="message__confirm">
-            {{#if loginForm}}
-            <span class="select-choices__choice">{{i18n.LOG_IN}}</span>
-            {{/if}}
-            {{#unless loginForm}}
-            <span class="select-choices__choice">{{i18n.SIGN_UP}}</span>
-            {{/unless}}
-            <span class="select-choices__choice">{{i18n.CANCEL}}</span>
-        </div>
+            <p class="error- form__error-message form__error-message--center"></p>
+
+            <div class="message__confirm">
+                {{#if loginForm}}
+                <span class="select-choices__choice">{{i18n.LOGIN}}</span>
+                {{/if}}
+                {{#unless loginForm}}
+                <span class="select-choices__choice">{{i18n.SIGNUP}}</span>
+                {{/unless}}
+                <span class="select-choices__choice">{{i18n.CANCEL}}</span>
+            </div>
+        </form>
     </div>
 </div>

@@ -4,7 +4,7 @@
  * Controller for the splash screen.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.12.12
+ * @version 17.12.17
  */
 define([cardGame.gamePath + "js/views/splash-screen/SplashScreenScript.js"], function (splashScreenScript) {
     return (function () {
@@ -23,23 +23,6 @@ define([cardGame.gamePath + "js/views/splash-screen/SplashScreenScript.js"], fun
          */
         let TEMPLATE_LOGIN_SIGNUP = cardGame.gamePath + 'js/views/splash-screen/loginSignup.html';
 
-        /**
-         * Load and display the login or sign up form.
-         * @param loginForm true if it should display the login form.
-         * @since 17.12.11
-         */
-        function loginSignupForm(loginForm) {
-            let data = {
-                i18n: cardGame.i18n,
-                loginForm: loginForm === true
-            };
-
-            $.get(TEMPLATE_LOGIN_SIGNUP, function (source) {
-                let template = Handlebars.compile(source);
-                cardGame.$container.find(".board__background").append(template(data));
-                splashScreenScript.showLoginSignupForm(loginForm);
-            });
-        }
 
         return {
 
@@ -48,16 +31,20 @@ define([cardGame.gamePath + "js/views/splash-screen/SplashScreenScript.js"], fun
              * @since 17.10.30
              */
             splashScreen() {
-                let authenticated = false;
-                let data = {
-                    i18n: cardGame.i18n,
-                    authenticated: authenticated
-                };
+                $.get({
+                    url: "/is-authenticated",
+                    dataType: "json"
+                }).done(function (result) {
+                    let data = {
+                        i18n: cardGame.i18n,
+                        authenticated: result.authenticated
+                    };
 
-                $.get(TEMPLATE, function (source) {
-                    let template = Handlebars.compile(source);
-                    cardGame.$container.find(".board__game-area").html(template(data));
-                    splashScreenScript.showMenu(authenticated);
+                    $.get(TEMPLATE, function (source) {
+                        let template = Handlebars.compile(source);
+                        cardGame.$container.find(".board__game-area").html(template(data));
+                        splashScreenScript.showMenu(result.authenticated);
+                    });
                 });
             },
 
@@ -65,8 +52,17 @@ define([cardGame.gamePath + "js/views/splash-screen/SplashScreenScript.js"], fun
              * Load and display the login form.
              * @since 17.12.11
              */
-            loginForm(){
-                loginSignupForm(true);
+            loginForm() {
+                let data = {
+                    i18n: cardGame.i18n,
+                    loginForm: true
+                };
+
+                $.get(TEMPLATE_LOGIN_SIGNUP, function (source) {
+                    let template = Handlebars.compile(source);
+                    cardGame.$container.find(".board__background").append(template(data));
+                    splashScreenScript.showLoginForm();
+                });
             },
 
 
@@ -74,8 +70,25 @@ define([cardGame.gamePath + "js/views/splash-screen/SplashScreenScript.js"], fun
              * Display the sign up form.
              * @since 17.12.11
              */
-            signupForm(){
-                loginSignupForm(false);
+            signupForm() {
+                let data = {
+                    i18n: cardGame.i18n,
+                    loginForm: false
+                };
+
+                $.get(TEMPLATE_LOGIN_SIGNUP, function (source) {
+                    let template = Handlebars.compile(source);
+                    cardGame.$container.find(".board__background").append(template(data));
+                    splashScreenScript.showSignupForm();
+                });
+            },
+
+            logout() {
+                $.get({
+                    url: "/logout",
+                }).done(function () {
+                    Routes.get(Routes.getKeys().SPLASH_SCREEN)();
+                });
             }
         }
     })();

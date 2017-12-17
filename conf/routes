@@ -3,13 +3,13 @@
 # ~~~~
 
 # Home page
-GET         /                    controllers.Application.index
+GET         /                        controllers.ApplicationController.GET_Index
 
-# Membership
-POST        /login               controllers.Membership.POST_AjaxLogin()
-
+# MembershipController
+POST        /login                   controllers.MembershipController.POST_Login
+POST        /signup                  controllers.MembershipController.POST_Signup
+GET         /is-authenticated        controllers.MembershipController.GET_IsAuthenticated
+GET         /logout                  controllers.MembershipController.GET_Logout
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file        controllers.Assets.at(path="/public", file)
-
-    
+GET         /assets/*file            controllers.Assets.at(path="/public", file)
