@@ -20,7 +20,18 @@ public class SessionHelper {
      */
     public static MemberModel getMember() {
         try {
-            return (MemberModel) Http.Context.current().args.getOrDefault("member", null);
+            MemberModel member = (MemberModel) Http.Context.current().args.getOrDefault("member", null);
+            if (member == null) {
+                final String memberUid = Http.Context.current().session().get("memberUid");
+                if (memberUid != null) {
+                    member = MemberModel.find.query()
+                            .where()
+                            .eq("uid", memberUid)
+                            .findUnique();
+                    Http.Context.current().args.put("member", member);
+                }
+            }
+            return member;
         } catch (final RuntimeException ignore) {
             return null;
         }

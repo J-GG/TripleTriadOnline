@@ -4,12 +4,13 @@
  * Manage the main menu.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.12.17
+ * @version 17.12.19
  */
 define([cardGame.gamePath + "js/views/common/Common.js",
     cardGame.gamePath + "js/toolbox/Key.js",
     cardGame.gamePath + "js/views/common/Sound.js",
-    cardGame.gamePath + "js/views/common/Forms.js"], function (Common, Key, Sound, Forms) {
+    cardGame.gamePath + "js/views/common/Forms.js",
+    cardGame.gamePath + "js/models/Member.js"], function (Common, Key, Sound, Forms, Member) {
 
     /**
      * Manage the main menu for authenticated users.
@@ -32,7 +33,13 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                             Routes.get(Routes.getKeys().SETTINGS)();
                             break;
                         default:
-                            Routes.get(Routes.getKeys().LOGOUT)();
+                            $.get({
+                                url: "/logout",
+                                dataType: "json"
+                            }).done(function (response) {
+                                cardGame.member = new Member(response.member);
+                                Routes.get(Routes.getKeys().SPLASH_SCREEN)();
+                            });
                             break;
                     }
                     break;
@@ -112,11 +119,12 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                                 url: url,
                                 data: data,
                                 dataType: "json"
-                            }).done(function (data) {
-                                if (data.errors === undefined) {
+                            }).done(function (response) {
+                                if (response.member !== undefined) {
+                                    cardGame.member = new Member(response.member);
                                     Routes.get(Routes.getKeys().SPLASH_SCREEN)();
                                 } else {
-                                    Forms.showErrorMessages($form, data.errors);
+                                    Forms.showErrorMessages($form, response.errors);
                                 }
                             });
                             break;

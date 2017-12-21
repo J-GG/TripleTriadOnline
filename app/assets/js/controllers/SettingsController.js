@@ -4,11 +4,10 @@
  * Controller for the settings.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.11.02
+ * @version 17.12.19
  */
 define([cardGame.gamePath + "js/views/settings-screen/SettingsScreenScript.js",
-    cardGame.gamePath + "js/models/Settings.js",
-    cardGame.gamePath + "js/models/Rules.js"], function (SettingsScreenScript, Settings, Rules) {
+    cardGame.gamePath + "js/models/Rules.js"], function (SettingsScreenScript, Rules) {
     return (function () {
 
         /**
@@ -27,18 +26,19 @@ define([cardGame.gamePath + "js/views/settings-screen/SettingsScreenScript.js",
             settings() {
                 $.get(TEMPLATE, function (source) {
                     let template = Handlebars.compile(source);
+                    let memberSettings = cardGame.member.getMemberSettings();
+                    let defaultGameSettings = memberSettings.getDefaultGameSettings();
                     let data = {
                         i18n: cardGame.i18n,
-                        player1: Settings.getPlayer1Name(),
-                        player2: Settings.getPlayer2Name(),
-                        audio: Settings.isAudioEnabled(),
-                        lang: Settings.getLanguage(),
-                        difficulty: Settings.getDifficulty(),
-                        open: Settings.isRuleEnabled(Rules.getRules().OPEN),
-                        war: Settings.isRuleEnabled(Rules.getRules().WAR),
-                        same: Settings.isRuleEnabled(Rules.getRules().SAME),
-                        plus: Settings.isRuleEnabled(Rules.getRules().PLUS),
-                        combo: Settings.isRuleEnabled(Rules.getRules().COMBO)
+                        username: cardGame.member.getUsername(),
+                        audio: memberSettings.isAudioEnabled(),
+                        lang: memberSettings.getLanguage(),
+                        difficulty: defaultGameSettings.getDifficulty(),
+                        open: defaultGameSettings.isRuleEnabled(Rules.getRules().OPEN),
+                        war: defaultGameSettings.isRuleEnabled(Rules.getRules().WAR),
+                        same: defaultGameSettings.isRuleEnabled(Rules.getRules().SAME),
+                        plus: defaultGameSettings.isRuleEnabled(Rules.getRules().PLUS),
+                        combo: defaultGameSettings.isRuleEnabled(Rules.getRules().COMBO)
                     };
 
                     cardGame.$container.find(" .board__game-area").html(template(data));

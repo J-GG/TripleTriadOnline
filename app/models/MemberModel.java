@@ -3,6 +3,8 @@ package models;
 import io.ebean.Finder;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,6 +30,8 @@ public class MemberModel extends BaseModel {
      *
      * @since 17.12.17
      */
+    @Size(min = 3, max = 10)
+    @Column(nullable = false, unique = true)
     private String username;
 
     /**
@@ -35,16 +39,36 @@ public class MemberModel extends BaseModel {
      *
      * @since 17.12.17
      */
+    @Column(nullable = false)
     private String password;
+
+    /**
+     * The member's settings.
+     *
+     * @since 17.12.17
+     */
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "member_settings_uid", nullable = false, unique = true)
+    private MemberSettingsModel memberSettings;
 
     /**
      * The list of cards owned by the member.
      *
      * @since 17.12.17
      */
-    @ManyToMany(targetEntity = CardModel.class, fetch = FetchType.LAZY)
+    @ManyToMany(targetEntity = CardModel.class)
     @JoinTable(name = "member_owns_card")
     private List<CardModel> cards;
+
+    /**
+     * Create a new member.
+     *
+     * @since 17.12.18
+     */
+    public MemberModel() {
+        this.cards = new ArrayList<>();
+        this.memberSettings = new MemberSettingsModel();
+    }
 
     /**
      * Return the member's username.
@@ -84,5 +108,45 @@ public class MemberModel extends BaseModel {
      */
     public void setPassword(final String password) {
         this.password = password;
+    }
+
+    /**
+     * Return the member's settings
+     *
+     * @return the member's settings
+     * @since 17.12.17
+     */
+    public MemberSettingsModel getMemberSettings() {
+        return this.memberSettings;
+    }
+
+    /**
+     * Set the member's settings
+     *
+     * @param memberSettings the member's settings
+     * @since 17.12.17
+     */
+    public void setMemberSettings(final MemberSettingsModel memberSettings) {
+        this.memberSettings = memberSettings;
+    }
+
+    /**
+     * Return the list of cards owned by the member.
+     *
+     * @return the list of cards owned by the member
+     * @since 17.12.17
+     */
+    public List<CardModel> getCards() {
+        return this.cards;
+    }
+
+    /**
+     * Set the list of cards owned by the member.
+     *
+     * @param cards the list of cards owned by the member
+     * @since 17.12.17
+     */
+    public void setCards(final List<CardModel> cards) {
+        this.cards = cards;
     }
 }

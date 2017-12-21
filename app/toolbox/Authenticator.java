@@ -14,16 +14,17 @@ import play.mvc.Security;
 public class Authenticator extends Security.Authenticator {
     @Override
     public String getUsername(final Http.Context ctx) {
-        String memberUid = ctx.session().get("memberUid");
+        final String memberUid = ctx.session().get("memberUid");
 
-        if(memberUid != null) {
+        if (memberUid != null) {
             final MemberModel member = MemberModel.find.query()
                     .where()
                     .eq("uid", memberUid)
                     .findUnique();
 
-            if(member != null){
+            if (member != null) {
                 ctx.args.put("member", member);
+                return member.getUsername();
             }
         }
 

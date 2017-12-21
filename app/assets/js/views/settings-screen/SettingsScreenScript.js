@@ -10,8 +10,9 @@ define([cardGame.gamePath + "js/views/common/Common.js",
         cardGame.gamePath + "js/models/Settings.js",
         cardGame.gamePath + "js/toolbox/Key.js",
         cardGame.gamePath + "js/models/Rules.js",
-        cardGame.gamePath + "js/views/common/Sound.js"],
-    function (Common, Settings, Key, Rules, Sound) {
+        cardGame.gamePath + "js/views/common/Sound.js",
+        cardGame.gamePath + "js/models/Member.js"],
+    function (Common, Settings, Key, Rules, Sound, Member) {
         return {
             manageSettings() {
                 Common.linearChoice({unbindOnEnter: false}, function (e) {
@@ -21,26 +22,24 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                         case Key.ENTER:
                             switch (e.choice) {
                                 case 1:
-                                case 2:
                                     Sound.play(Sound.getKeys().SELECT);
-                                    cardGame.$container.find("#setting-player-" + e.choice + " input").focus();
+                                    cardGame.$container.find("#setting-password input").focus();
                                     break;
-
-                                case 3:
+                                case 2:
                                     Sound.play(Sound.getKeys().SELECT);
                                     cardGame.$container.find("#setting-audio .message__check").each(function () {
                                         $(this).toggleClass("message__check--enabled");
                                     });
                                     break;
 
-                                case 4:
+                                case 3:
                                     Sound.play(Sound.getKeys().SELECT);
                                     cardGame.$container.find("#setting-language .message__check").each(function () {
                                         $(this).toggleClass("message__check--enabled");
                                     });
                                     break;
 
-                                case 5:
+                                case 4:
                                     Sound.play(Sound.getKeys().SELECT);
                                     let $difficulties = cardGame.$container.find("#setting-difficulty .message__check");
                                     let $selectedDifficulty = $difficulties.filter(".message__check--enabled");
@@ -51,11 +50,11 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                                     $nextSelectedDifficulty.addClass("message__check--enabled");
                                     break;
 
+                                case 5:
                                 case 6:
                                 case 7:
                                 case 8:
                                 case 9:
-                                case 10:
                                     let description = $(cardGame.$container.find(".select-choices__choice")[e.choice - 1]).data("description");
                                     $description.html(description);
 
@@ -64,62 +63,59 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                                     break;
 
                                 default:
-                                    //Player's name
-                                    Settings.setPlayer1Name(cardGame.$container.find("#setting-player-1 input").val());
-                                    Settings.setPlayer2Name(cardGame.$container.find("#setting-player-2 input").val());
+                                    let data = {};
+                                    //Password
+                                    data["password"] = cardGame.$container.find("#setting-password input").val();
 
                                     //Audio
                                     if (cardGame.$container.find("#setting-audio-on").hasClass("message__check--enabled")) {
-                                        Settings.enableAudio();
+                                        data["audioEnabled"] = true;
                                     } else {
-                                        Settings.disableAudio();
+                                        data["audioEnabled"] = false;
                                     }
 
                                     //Language
-                                    Settings.setLanguage(cardGame.$container.find("#setting-language .message__check--enabled").data("langCode"));
+                                    data["language"] = cardGame.$container.find("#setting-language .message__check--enabled").data("langCode");
 
                                     //Difficulty
-                                    Settings.setDifficulty(cardGame.$container.find("#setting-difficulty .message__check--enabled").data("difficulty"));
+                                    data["difficulty"] = cardGame.$container.find("#setting-difficulty .message__check--enabled").data("difficulty");
 
                                     //Rules
+                                    data["enabledRules"] = [];
                                     if (cardGame.$container.find("#rule-open").hasClass("message__check--enabled")) {
-                                        Settings.enableRule(Rules.getRules().OPEN);
-                                    } else {
-                                        Settings.disableRule(Rules.getRules().OPEN);
+                                        data["enabledRules"].push(Rules.getRules().OPEN);
                                     }
 
                                     if (cardGame.$container.find("#rule-war").hasClass("message__check--enabled")) {
-                                        Settings.enableRule(Rules.getRules().WAR);
-                                    } else {
-                                        Settings.disableRule(Rules.getRules().WAR);
+                                        data["enabledRules"].push(Rules.getRules().WAR);
                                     }
 
                                     if (cardGame.$container.find("#rule-same").hasClass("message__check--enabled")) {
-                                        Settings.enableRule(Rules.getRules().SAME);
-                                    } else {
-                                        Settings.disableRule(Rules.getRules().SAME);
+                                        data["enabledRules"].push(Rules.getRules().SAME);
                                     }
 
                                     if (cardGame.$container.find("#rule-plus").hasClass("message__check--enabled")) {
-                                        Settings.enableRule(Rules.getRules().PLUS);
-                                    } else {
-                                        Settings.disableRule(Rules.getRules().PLUS);
+                                        data["enabledRules"].push(Rules.getRules().PLUS);
                                     }
 
                                     if (cardGame.$container.find("#rule-combo").hasClass("message__check--enabled")) {
-                                        Settings.enableRule(Rules.getRules().COMBO);
-                                    } else {
-                                        Settings.disableRule(Rules.getRules().COMBO);
+                                        data["enabledRules"].push(Rules.getRules().COMBO);
                                     }
 
-                                    Settings.save();
+                                    $.post({
+                                        url: "/settings",
+                                        data: data,
+                                        dataType: "json"
+                                    }).done(function (response) {
+                                        cardGame.member = new Member(response.member);
 
-                                    logger.info("Settings updated");
-                                    e.unbind();
-                                    Sound.play(Sound.getKeys().SPECIAL);
-                                    require([cardGame.gamePath + "js/lang/i18n_" + Settings.getLanguage() + ".js"], function (i18n) {
-                                        window.cardGame.i18n = i18n;
-                                        Routes.get(Routes.getKeys().DEFAULT)();
+                                        logger.info("Settings updated");
+                                        e.unbind();
+                                        Sound.play(Sound.getKeys().SPECIAL);
+                                        require([cardGame.gamePath + "js/lang/i18n_" + cardGame.member.getMemberSettings().getLanguage() + ".js"], function (i18n) {
+                                            window.cardGame.i18n = i18n;
+                                            Routes.get(Routes.getKeys().DEFAULT)();
+                                        });
                                     });
                                     break;
                             }
@@ -137,11 +133,11 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                             cardGame.$container.find(".board").focus();
 
                             switch (e.choice) {
+                                case 5:
                                 case 6:
                                 case 7:
                                 case 8:
                                 case 9:
-                                case 10:
                                     let description = $(cardGame.$container.find(".select-choices__choice")[e.choice - 1]).data("description");
                                     $description.html(description);
                                     break;

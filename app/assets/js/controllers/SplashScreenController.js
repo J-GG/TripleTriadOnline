@@ -81,14 +81,6 @@ define([cardGame.gamePath + "js/views/splash-screen/SplashScreenScript.js"], fun
                     cardGame.$container.find(".board__background").append(template(data));
                     splashScreenScript.showSignupForm();
                 });
-            },
-
-            logout() {
-                $.get({
-                    url: "/logout",
-                }).done(function () {
-                    Routes.get(Routes.getKeys().SPLASH_SCREEN)();
-                });
             }
         }
     })();

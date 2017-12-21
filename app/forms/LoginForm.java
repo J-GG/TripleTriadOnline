@@ -12,7 +12,7 @@ import java.util.List;
  * LoginForm.
  *
  * @author Jean-Gabriel Genest
- * @version 17.12.17
+ * @version 17.12.21
  * @since 17.12.17
  */
 @Constraints.Validate
@@ -26,7 +26,7 @@ public class LoginForm implements Constraints.Validatable<List<ValidationError>>
     @Constraints.Required
     @Constraints.MinLength(3)
     @Constraints.MaxLength(10)
-    private String username;
+    public String username;
 
     /**
      * The member's password.
@@ -34,7 +34,7 @@ public class LoginForm implements Constraints.Validatable<List<ValidationError>>
      * @since 17.12.17
      */
     @Constraints.Required
-    private String password;
+    public String password;
 
     /**
      * The MemberModel if the user could be authenticated.
@@ -61,52 +61,12 @@ public class LoginForm implements Constraints.Validatable<List<ValidationError>>
     }
 
     /**
-     * Return the member's username.
-     *
-     * @return the member's username
-     * @since 17.12.17
-     */
-    public String getUsername() {
-        return this.username;
-    }
-
-    /**
-     * Set the member's password.
-     *
-     * @param username the member's password
-     * @since 17.12.17
-     */
-    public void setUsername(final String username) {
-        this.username = username;
-    }
-
-    /**
-     * Return the member's password.
-     *
-     * @return the member's password
-     * @since 17.12.17
-     */
-    public String getPassword() {
-        return this.password;
-    }
-
-    /**
-     * Set the member's password.
-     *
-     * @param password the member's password
-     * @since 17.12.17
-     */
-    public void setPassword(final String password) {
-        this.password = password;
-    }
-
-    /**
      * Return the MemberModel of the authenticated user.
      *
      * @return the memberModel of the authenticated user.
      * @since 17.12.17
      */
-    public MemberModel get_member() {
+    public MemberModel getMember() {
         return this._member;
     }
 }

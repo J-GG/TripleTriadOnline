@@ -2,25 +2,17 @@
     <div class="message message--large message--settings">
         <div class="select-choices">
 
-            <!-- Name Player 1 -->
-            <p id="setting-player-1" class="select-choices__choice message__grid">
-                {{i18n.PLAYER_1}}
-                <span class="message__value message__value--col-4">
-                    <input type='text' class='message__input' maxlength='10'
-                           spellcheck='false'
-                           autocomplete='false'
-                           value="{{player1}}"/>
-                </span>
-            </p>
+            <!-- Username -->
+            <h3 class="message--text-center">
+                {{username}}
+            </h3>
 
-            <!-- Name Player 2 -->
-            <p id="setting-player-2" class="select-choices__choice message__grid">
-                {{i18n.PLAYER_2}}
+            <!-- Password -->
+            <p id="setting-password" class="select-choices__choice message__grid">
+                {{i18n.PASSWORD}}
                 <span class="message__value message__value--col-4">
-                    <input type='text' class='message__input' maxlength='10'
-                           spellcheck='false'
-                           autocomplete='false'
-                           value="{{player2}}"/>
+                    <input name="password" type='password' class='message__input' autocomplete="off"
+                           spellcheck='false'/>
                 </span>
             </p>
 

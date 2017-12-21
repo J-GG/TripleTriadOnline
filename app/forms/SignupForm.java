@@ -3,21 +3,37 @@ package forms;
 import models.MemberModel;
 import play.data.validation.Constraints;
 import play.data.validation.ValidationError;
-import play.i18n.Messages;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * SignupForm.
+ *
+ * @author Jean-Gabriel Genest
+ * @version 17.12.21
+ * @since 17.12.17
+ */
 @Constraints.Validate
 public class SignupForm implements Constraints.Validatable<List<ValidationError>> {
 
+    /**
+     * The member's username.
+     *
+     * @since 17.12.17
+     */
     @Constraints.Required
     @Constraints.MinLength(3)
     @Constraints.MaxLength(10)
-    private String username;
+    public String username;
 
+    /**
+     * The member's password.
+     *
+     * @since 17.12.17
+     */
     @Constraints.Required
-    private String password;
+    public String password;
 
     @Override
     public List<ValidationError> validate() {
@@ -25,7 +41,7 @@ public class SignupForm implements Constraints.Validatable<List<ValidationError>
 
         final MemberModel member = MemberModel.find.query()
                 .where()
-                .eq("username", username)
+                .eq("username", this.username)
                 .findUnique();
 
         if (member != null) {
@@ -33,21 +49,5 @@ public class SignupForm implements Constraints.Validatable<List<ValidationError>
         }
 
         return errors.isEmpty() ? null : errors;
-    }
-
-    public String getUsername() {
-        return this.username;
-    }
-
-    public void setUsername(final String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return this.password;
-    }
-
-    public void setPassword(final String password) {
-        this.password = password;
     }
 }

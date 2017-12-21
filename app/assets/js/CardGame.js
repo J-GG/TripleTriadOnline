@@ -48,7 +48,8 @@ define([], function () {
 
             require([cardGame.nodePath + "node_modules/jquery/dist/jquery.min",
                 cardGame.nodePath + "node_modules/handlebars/dist/handlebars.min",
-                cardGame.nodePath + "node_modules/js-logging/js-logging.browser"], function (jquery, handlebars, logging) {
+                cardGame.nodePath + "node_modules/js-logging/js-logging.browser",
+                cardGame.gamePath + "js/models/Member.js"], function (jquery, handlebars, logging, Member) {
 
                 window.cardGame.$container = $("#card-game");
                 if (options !== undefined) {
@@ -78,12 +79,18 @@ define([], function () {
                     cardGame.$container.html(template(data));
                 });
 
+                $.get({
+                    url: "/get-member",
+                    dataType: "json"
+                }).done(function (data) {
+                    window.cardGame.member = new Member(data.member);
+                });
+
                 //Launch the game
                 logger.debug("Game launching in [container: " + cardGame.$container[0].id + "]");
                 require([cardGame.gamePath + "js/views/base/Base.js",
-                    cardGame.gamePath + "js/toolbox/Routes.js",
-                    cardGame.gamePath + "js/models/Settings.js"], function (baseScript, Routes, Settings) {
-                    require([cardGame.gamePath + "js/lang/i18n_" + Settings.getLanguage() + ".js"], function (i18n) {
+                    cardGame.gamePath + "js/toolbox/Routes.js"], function (baseScript, Routes) {
+                    require([cardGame.gamePath + "js/lang/i18n_" + cardGame.member.getMemberSettings().getLanguage() + ".js"], function (i18n) {
                         window.cardGame.i18n = i18n;
                         window.Routes = Routes;
 

@@ -5,7 +5,7 @@
  * When a route is invoked, the corresponding method to the key is returned.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.12.10
+ * @version 17.12.19
  */
 define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
         cardGame.gamePath + "js/controllers/SettingsController.js",
@@ -23,7 +23,6 @@ define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
                 SPLASH_SCREEN: "SPLASH_SCREEN",
                 LOGIN_FORM: "LOGIN_FORM",
                 SIGNUP_FORM: "SIGNUP_FORM",
-                LOGOUT: "LOGOUT",
                 SETTINGS: "SETTINGS",
                 PLAY: "PLAY",
                 START_GAME: "START_GAME",
@@ -42,7 +41,6 @@ define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
                 [keys.SPLASH_SCREEN]: SplashScreenController.splashScreen,
                 [keys.LOGIN_FORM]: SplashScreenController.loginForm,
                 [keys.SIGNUP_FORM]: SplashScreenController.signupForm,
-                [keys.LOGOUT]: SplashScreenController.logout,
                 [keys.SETTINGS]: SettingsController.settings,
                 [keys.PLAY]: GameController.play,
                 [keys.START_GAME]: GameController.startGame,

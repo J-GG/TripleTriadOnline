@@ -50,7 +50,7 @@ define([cardGame.gamePath + "js/models/Settings.js"], function (Settings) {
              * @param sound The key associated with the sound to play
              * @since 17.11.12
              */
-            stopAllAndPlay(sound){
+            stopAllAndPlay(sound) {
                 this.stopAll();
                 this.play(sound);
             },
@@ -60,13 +60,13 @@ define([cardGame.gamePath + "js/models/Settings.js"], function (Settings) {
              * @param sound The key associated with the sound to play
              * @since 17.11.12
              */
-            play(sound){
+            play(sound) {
                 if (!Object.values(sounds).includes(sound)) {
                     logger.warning("The sound for " + sound + " could not be found");
                     return;
                 }
 
-                if (Settings.isAudioEnabled()) {
+                if (cardGame.member.getMemberSettings().isAudioEnabled()) {
                     let soundElement = document.getElementById(sound);
                     if (soundElement !== null) {
                         soundElement.currentTime = 0;

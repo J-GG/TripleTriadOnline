@@ -4,7 +4,7 @@
  * The english (and default) wording of the game.
  * @author Jean-Gabriel Genest
  * @since 17.11.12
- * @version 17.12.17
+ * @version 17.12.19
  */
 define([], function () {
     return {
@@ -17,8 +17,6 @@ define([], function () {
         CANCEL: "Cancel",
         USERNAME: "Username",
         PASSWORD: "Password",
-        PLAYER_1: "Player 1",
-        PLAYER_2: "Player 2",
         SOUND: "Sound",
         LANGUAGE: "Language",
         DIFFICULTY: "AI difficulty",

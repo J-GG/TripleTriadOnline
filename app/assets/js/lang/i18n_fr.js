@@ -4,7 +4,7 @@
  * The french wording of the game. Overwrite default values.
  * @author Jean-Gabriel Genest
  * @since 17.11.12
- * @version 17.12.17
+ * @version 17.12.19
  */
 define([cardGame.gamePath + "js/lang/i18n_en.js"], function (i18nDefault) {
     let i18nFR = {
@@ -17,8 +17,6 @@ define([cardGame.gamePath + "js/lang/i18n_en.js"], function (i18nDefault) {
         CANCEL: "Annuler",
         USERNAME: "Nom d'utilisateur",
         PASSWORD: "Mot de passe",
-        PLAYER_1: "Joueur 1",
-        PLAYER_2: "Joueur 2",
         SOUND: "Son",
         LANGUAGE: "Langue",
         DIFFICULTY: "Difficulté IA",
