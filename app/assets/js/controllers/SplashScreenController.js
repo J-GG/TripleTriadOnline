@@ -4,7 +4,7 @@
  * Controller for the splash screen.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.12.17
+ * @version 17.12.21
  */
 define([cardGame.gamePath + "js/views/splash-screen/SplashScreenScript.js"], function (splashScreenScript) {
     return (function () {
@@ -31,20 +31,15 @@ define([cardGame.gamePath + "js/views/splash-screen/SplashScreenScript.js"], fun
              * @since 17.10.30
              */
             splashScreen() {
-                $.get({
-                    url: "/is-authenticated",
-                    dataType: "json"
-                }).done(function (result) {
-                    let data = {
-                        i18n: cardGame.i18n,
-                        authenticated: result.authenticated
-                    };
+                let data = {
+                    i18n: cardGame.i18n,
+                    authenticated: cardGame.member.username !== null
+                };
 
-                    $.get(TEMPLATE, function (source) {
-                        let template = Handlebars.compile(source);
-                        cardGame.$container.find(".board__game-area").html(template(data));
-                        splashScreenScript.showMenu(result.authenticated);
-                    });
+                $.get(TEMPLATE, function (source) {
+                    let template = Handlebars.compile(source);
+                    cardGame.$container.find(".board__game-area").html(template(data));
+                    splashScreenScript.showMenu(cardGame.member.username !== null);
                 });
             },
 

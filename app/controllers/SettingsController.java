@@ -2,8 +2,8 @@ package controllers;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import forms.SettingsForm;
-import models.MemberModel;
-import models.entity.MemberEntity;
+import models.entity.membership.MemberEntity;
+import models.membership.MemberModel;
 import org.mindrot.jbcrypt.BCrypt;
 import play.Logger;
 import play.data.Form;
@@ -55,10 +55,10 @@ public class SettingsController extends Controller {
             member.getMemberSettings().setLanguage(form.language);
             member.getMemberSettings().setAudioEnabled(form.audioEnabled);
             member.getMemberSettings().getDefaultGameSettings().setDifficulty(form.difficulty);
-            member.getMemberSettings().getDefaultGameSettings().setEnabledRules(form.getEnabledRules());
+            member.getMemberSettings().getDefaultGameSettings().setEnabledRules(form.enabledRules);
             changeLang(form.language);
             member.save();
-            Logger.info("Member [uid: {}] has updated his/her settings", member.getUid());
+            Logger.info("Member [{}] updated his/her settings", member.getUid());
         }
 
         final ObjectNode result = Json.newObject();

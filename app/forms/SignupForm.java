@@ -1,6 +1,6 @@
 package forms;
 
-import models.MemberModel;
+import models.membership.MemberModel;
 import play.data.validation.Constraints;
 import play.data.validation.ValidationError;
 

@@ -3,15 +3,17 @@
 # ~~~~
 
 # Home page
-GET         /                        controllers.ApplicationController.GET_Index
+GET         /                    controllers.ApplicationController.GET_Index
 
-# MembershipController
-POST        /login                   controllers.MembershipController.POST_Login
-POST        /signup                  controllers.MembershipController.POST_Signup
-GET         /is-authenticated        controllers.MembershipController.GET_IsAuthenticated
-GET         /logout                  controllers.MembershipController.GET_Logout
-GET         /get-member              controllers.MembershipController.GET_Member
-POST        /settings                controllers.SettingsController.POST_Settings
+# Membership
+POST        /login               controllers.MembershipController.POST_Login
+POST        /signup              controllers.MembershipController.POST_Signup
+GET         /logout              controllers.MembershipController.GET_Logout
+GET         /get-member          controllers.MembershipController.GET_Member
+POST        /settings            controllers.SettingsController.POST_Settings
+
+# Game
+POST        /game/init           controllers.GameController.POST_InitGame
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file            controllers.Assets.at(path="/public", file)
+GET         /assets/*file        controllers.Assets.at(path="/public", file)

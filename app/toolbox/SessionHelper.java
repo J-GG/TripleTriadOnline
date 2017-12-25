@@ -1,6 +1,6 @@
 package toolbox;
 
-import models.MemberModel;
+import models.membership.MemberModel;
 import play.mvc.Http;
 
 /**

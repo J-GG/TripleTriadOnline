@@ -3,8 +3,8 @@
 /**
  * Entry point of the card game.
  * @author Jean-Gabriel Genest
+ * @version 17.12.23
  * @since 17.10.30
- * @version 17.12.10
  */
 define([], function () {
 
@@ -84,28 +84,28 @@ define([], function () {
                     dataType: "json"
                 }).done(function (data) {
                     window.cardGame.member = new Member(data.member);
-                });
 
-                //Launch the game
-                logger.debug("Game launching in [container: " + cardGame.$container[0].id + "]");
-                require([cardGame.gamePath + "js/views/base/Base.js",
-                    cardGame.gamePath + "js/toolbox/Routes.js"], function (baseScript, Routes) {
-                    require([cardGame.gamePath + "js/lang/i18n_" + cardGame.member.getMemberSettings().getLanguage() + ".js"], function (i18n) {
-                        window.cardGame.i18n = i18n;
-                        window.Routes = Routes;
+                    //Launch the game
+                    logger.debug("Game launching in [container: " + cardGame.$container[0].id + "]");
+                    require([cardGame.gamePath + "js/views/base/Base.js",
+                        cardGame.gamePath + "js/toolbox/Routes.js"], function (baseScript, Routes) {
+                        require([cardGame.gamePath + "js/lang/i18n_" + cardGame.member.getMemberSettings().getLanguage() + ".js"], function (i18n) {
+                            window.cardGame.i18n = i18n;
+                            window.Routes = Routes;
 
-                        //Load the minimal view
-                        $.get(cardGame.gamePath + TEMPLATE, function (source) {
-                            let template = Handlebars.compile(source);
-                            let data = {
-                                i18n: cardGame.i18n,
-                                gamePath: cardGame.gamePath
-                            };
+                            //Load the minimal view
+                            $.get(cardGame.gamePath + TEMPLATE, function (source) {
+                                let template = Handlebars.compile(source);
+                                let data = {
+                                    i18n: cardGame.i18n,
+                                    gamePath: cardGame.gamePath
+                                };
 
-                            cardGame.$container.html(template(data));
-                            baseScript.initViews();
+                                cardGame.$container.html(template(data));
+                                baseScript.initViews();
 
-                            Routes.get(Routes.getKeys().SPLASH_SCREEN)()
+                                Routes.get(Routes.getKeys().SPLASH_SCREEN)()
+                            });
                         });
                     });
                 });

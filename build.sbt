@@ -6,7 +6,8 @@ lazy val `root` = (project in file(".")).enablePlugins(PlayJava, SbtWeb, PlayEbe
 
 scalaVersion := "2.11.7"
 
-libraryDependencies ++= Seq(javaJdbc,
+libraryDependencies ++= Seq(
+  javaJdbc,
   filters,
   javaWs,
   guice,

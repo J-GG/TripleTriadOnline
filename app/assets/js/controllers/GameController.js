@@ -33,6 +33,15 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
              */
             play(onePlayer) {
 
+                $.post({
+                    url: "/game/init",
+                    contentType: "application/json",
+                    data: JSON.stringify({opponent: ""}),
+                    dataType: "json"
+                }).done(function (response) {
+                    console.log(response);
+                });
+
                 let data = {
                     player1: Settings.getPlayer1Name(),
                     player2: onePlayer === true ? undefined : Settings.getPlayer2Name(),

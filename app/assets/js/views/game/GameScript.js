@@ -222,9 +222,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                 let $selectedCard = $(this);
                 cardGame.$container.find(".card--deck-player-" + playerPlaying).each(function (index) {
                     if ($selectedCard.get(0) === $(this).get(0)) {
-                        console.log(index);
                         selectedCard = cardGame.$container.find(".card--deck-player-" + playerPlaying).length - 1 - index;
-                        console.log("sel" + selectedCard);
 
                         cardGame.$container.find(".cursor")
                             .removeClass("cursor--player-" + playerPlaying + " cursor--card-" + selectedCard);

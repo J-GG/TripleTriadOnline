@@ -31,7 +31,7 @@ public abstract class BaseModel extends Model {
      *
      * @since 17.12.17
      */
-    @Column(name = "created_at", nullable = false)
+    @Column(nullable = false)
     private final Date createdAt;
 
     /**

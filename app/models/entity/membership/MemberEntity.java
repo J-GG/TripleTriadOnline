@@ -1,7 +1,7 @@
-package models.entity;
+package models.entity.membership;
 
-import models.DefaultGameSettingsModel;
-import models.MemberModel;
+import models.membership.DefaultGameSettingsModel;
+import models.membership.MemberModel;
 
 import java.util.stream.Collectors;
 
@@ -15,14 +15,14 @@ import java.util.stream.Collectors;
 public class MemberEntity {
 
     /**
-     * The language of the interface
+     * The language of the interface.
      *
      * @since 17.12.19
      */
     private String username;
 
     /**
-     * Whether audio is enabled
+     * Whether audio is enabled.
      *
      * @since 17.12.19
      */

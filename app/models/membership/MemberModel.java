@@ -1,6 +1,9 @@
-package models;
+package models.membership;
 
 import io.ebean.Finder;
+import models.BaseModel;
+import models.game.CardModel;
+import models.game.PlayerModel;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -11,7 +14,7 @@ import java.util.List;
  * MemberModel.
  *
  * @author Jean-Gabriel Genest
- * @version 17.12.17
+ * @version 17.12.23
  * @since 17.12.17
  */
 @Entity
@@ -48,7 +51,7 @@ public class MemberModel extends BaseModel {
      * @since 17.12.17
      */
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "member_settings_uid", nullable = false, unique = true)
+    @JoinColumn(nullable = false, unique = true)
     private MemberSettingsModel memberSettings;
 
     /**
@@ -56,9 +59,17 @@ public class MemberModel extends BaseModel {
      *
      * @since 17.12.17
      */
-    @ManyToMany(targetEntity = CardModel.class)
+    @ManyToMany(targetEntity = CardModel.class, cascade = CascadeType.ALL)
     @JoinTable(name = "member_owns_card")
     private List<CardModel> cards;
+
+    /**
+     * The list of players (i.e games).
+     *
+     * @since 17.12.23
+     */
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
+    private List<PlayerModel> players;
 
     /**
      * Create a new member.
@@ -148,5 +159,15 @@ public class MemberModel extends BaseModel {
      */
     public void setCards(final List<CardModel> cards) {
         this.cards = cards;
+    }
+
+    /**
+     * Return the list of players (i.e. games).
+     *
+     * @return the list of players
+     * @since 17.12.23
+     */
+    public List<PlayerModel> getPlayers() {
+        return this.players;
     }
 }

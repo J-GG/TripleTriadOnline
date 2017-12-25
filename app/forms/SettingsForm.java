@@ -68,8 +68,4 @@ public class SettingsForm implements Constraints.Validatable<List<ValidationErro
 
         return errors.isEmpty() ? null : errors;
     }
-
-    public List<RuleEnum> getEnabledRules() {
-        return this.enabledRules != null ? this.enabledRules : new ArrayList<>();
-    }
 }

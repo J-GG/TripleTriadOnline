@@ -1,6 +1,7 @@
-package models;
+package models.membership;
 
 import io.ebean.Finder;
+import models.BaseModel;
 
 import javax.persistence.*;
 
@@ -44,7 +45,7 @@ public class MemberSettingsModel extends BaseModel {
      * @since 17.12.18
      */
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "default_game_settings_uid", nullable = false, unique = true)
+    @JoinColumn(nullable = false, unique = true)
     private DefaultGameSettingsModel defaultGameSettings;
 
     /**
