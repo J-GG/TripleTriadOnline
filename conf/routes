@@ -13,7 +13,7 @@ GET         /get-member          controllers.MembershipController.GET_Member
 POST        /settings            controllers.SettingsController.POST_Settings
 
 # Game
-POST        /game/init           controllers.GameController.POST_InitGame
+GET         /game/play           controllers.GameController.WS_Play
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file        controllers.Assets.at(path="/public", file)

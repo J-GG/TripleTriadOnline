@@ -4,7 +4,7 @@
  * Controller for the game.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.11.01
+ * @version 17.12.25
  */
 define([cardGame.gamePath + "js/views/game/GameScript.js",
     cardGame.gamePath + "js/models/Settings.js",
@@ -32,15 +32,15 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
              * @since 17.10.30
              */
             play(onePlayer) {
+                let websocket = new WebSocket("ws://localhost:9000/game/play");
 
-                $.post({
-                    url: "/game/init",
-                    contentType: "application/json",
-                    data: JSON.stringify({opponent: ""}),
-                    dataType: "json"
-                }).done(function (response) {
-                    console.log(response);
-                });
+                websocket.onopen = function () {
+                    websocket.send(JSON.stringify({init: {player2Ref: ""}}));
+                };
+
+                websocket.onmessage = function (event) {
+                    console.log(JSON.parse(event.data));
+                };
 
                 let data = {
                     player1: Settings.getPlayer1Name(),
