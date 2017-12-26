@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * A member's default settings for games. It is also used to communicate with the backend.
  * @author Jean-Gabriel Genest

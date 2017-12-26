@@ -42,8 +42,8 @@ public class BoardEntity {
         this.nbRows = boardModel.getNbRows();
         this.nbCols = boardModel.getNbCols();
         this.cases = new CaseEntity[boardModel.getNbRows()][boardModel.getNbCols()];
-        for (int row = 1; row < boardModel.getNbRows(); row++) {
-            for (int col = 1; col < boardModel.getNbCols(); col++) {
+        for (int row = 0; row < boardModel.getNbRows(); row++) {
+            for (int col = 0; col < boardModel.getNbCols(); col++) {
                 this.cases[row][col] = new CaseEntity(boardModel.getCase(row, col));
             }
         }

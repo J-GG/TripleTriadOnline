@@ -49,7 +49,7 @@ define([], function () {
             require([cardGame.nodePath + "node_modules/jquery/dist/jquery.min",
                 cardGame.nodePath + "node_modules/handlebars/dist/handlebars.min",
                 cardGame.nodePath + "node_modules/js-logging/js-logging.browser",
-                cardGame.gamePath + "js/models/Member.js"], function (jquery, handlebars, logging, Member) {
+                cardGame.gamePath + "js/models/membership/Member.js"], function (jquery, handlebars, logging, Member) {
 
                 window.cardGame.$container = $("#card-game");
                 if (options !== undefined) {

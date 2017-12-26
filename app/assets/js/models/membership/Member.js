@@ -1,10 +1,12 @@
+'use strict';
+
 /**
  * A member. It is also used to communicate with the backend.
  * @author Jean-Gabriel Genest
  * @since 17.12.19
- * @version 17.12.19
+ * @version 17.12.26
  */
-define([cardGame.gamePath + "js/models/MemberSettings.js"], function (MemberSettings) {
+define([cardGame.gamePath + "js/models/membership/MemberSettings.js"], function (MemberSettings) {
     return class Member {
 
         /**
@@ -13,8 +15,18 @@ define([cardGame.gamePath + "js/models/MemberSettings.js"], function (MemberSett
          * @since 17.12.19
          */
         constructor(member) {
+            this.memberRef = member.memberRef;
             this.username = member.username;
             this.memberSettings = new MemberSettings(member.memberSettings);
+        }
+
+        /**
+         * Get the member's unique identifier.
+         * @returns {*} the member's unique identifier
+         * @since 17.12.26
+         */
+        getMemberRef() {
+            return this.memberRef;
         }
 
         /**

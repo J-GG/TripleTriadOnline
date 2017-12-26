@@ -18,7 +18,7 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                         cardGame.$container.find(".board__background").fadeOut("slow", function () {
                             switch (e.choice) {
                                 case 1:
-                                    Routes.get(Routes.getKeys().PLAY)(onePlayer);
+                                    Routes.get(Routes.getKeys().START_GAME)(onePlayer);
                                     break;
 
                                 default:

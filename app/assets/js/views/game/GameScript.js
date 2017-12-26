@@ -10,74 +10,73 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
         cardGame.gamePath + "js/models/Settings.js",
         cardGame.gamePath + "js/models/Rules.js",
         cardGame.gamePath + "js/models/Board.js",
-        cardGame.gamePath + "js/views/common/Sound.js"],
-    function (Key, Settings, Rules, Board, Sound) {
+        cardGame.gamePath + "js/views/common/Sound.js",
+        cardGame.gamePath + "js/toolbox/GameHelper.js"],
+    function (Key, Settings, Rules, Board, Sound, GameHelper) {
 
         /**
          * Start the music.
-         * @param gameState State of the game
+         * @param game the game
          * @since 17.11.05
          */
-        function initGame(gameState) {
+        function initGame(game) {
             Sound.play(Sound.getKeys().GAME);
-            drawCards(gameState);
+            drawCards(game);
         }
 
         /**
          * Draw the players' cards. If open is disabled, show only the back of the cards.
-         * @param gameState State of the game
+         * @param game the game
          * @since 17.11.05
          */
-        function drawCards(gameState) {
+        function drawCards(game) {
             /* Show player's cards */
-            for (let i = gameState.getPlayers().length - 1; i >= 0; i--) {
-                let deck = gameState.getPlayer(i).getDeck();
+            for (let i = game.getPlayers().length - 1; i >= 0; i--) {
+                let deck = game.getPlayer(i).getDeck();
 
                 for (let j = deck.length - 1; j >= 0; j--) {
                     cardGame.$container.find(".card--player-" + (i + 1) + "-appearance-deck-" + j)
-                        .addClass("card--player-" + (i + 1) + "-appearance-deck-" + j)
                         .css({
                             "background-image": "url('" + cardGame.gamePath + "img/cards/" + deck[j].getName().replace(/ /g, '').toLowerCase() + ".jpg')"
                         });
                 }
 
-                /* Hide the card and show the back if open is disabled */
-                if (!Settings.isRuleEnabled(Rules.getRules().OPEN)) {
-                    /* If the player plays against the AI, do not hide the player's cards */
-                    if (gameState.isOnePlayerGame() && i === 0) {
-                        continue;
+                /* Hide the cards and show the back if open is disabled */
+                if (!game.isRuleEnabled(Rules.getRules().OPEN)) {
+                    /* Hide the cards of the player who is not the member */
+                    if (game.getPlayer(i) === GameHelper.getPlayerOfMember(game)) {
+                        cardGame.$container.find(".card:not(.card--deck-player-" + (i + 1) + ")").each(function () {
+                            $(this).data("background", $(this).css("background-image"))
+                                .css("background-image", "")
+                                .addClass("card--back")
+                                .removeClass("card--player-1 card--player-2");
+                        });
                     }
-
-                    cardGame.$container.find(".card.card--deck-player-" + (i + 1)).each(function () {
-                        $(this).data("background", $(this).css("background-image"))
-                            .css("background-image", "")
-                            .addClass("card--back")
-                            .removeClass("card--player-" + (i + 1));
-                    });
                 }
             }
 
             /* After the animation of the cards*/
             let $cardAnimation = cardGame.$container.find(".card--player-2-appearance-deck-0");
             let animationDelay = parseFloat($cardAnimation.css("animation-duration")) + parseFloat($cardAnimation.css("animation-delay"));
-            setTimeout(() => drawFirstPlayerPlaying(gameState), animationDelay * 1000);
+            setTimeout(() => drawFirstPlayerPlaying(game), animationDelay * 1000);
         }
 
         /**
          * Select the first player who is going to play.
          * Show the scores and place definitively cards in decks.
-         * @param gameState State of the game
+         * @param game the game
          * @since 17.11.05
          */
-        function drawFirstPlayerPlaying(gameState) {
-            let playerPlaying = gameState.getIndexPlayerPlaying() + 1;
-            for (let i = gameState.getPlayers().length - 1; i >= 0; i--) {
+        function drawFirstPlayerPlaying(game) {
+            let playerPlaying = GameHelper.getIndexPlayerTurn(game);
 
+            for (let i = game.getPlayers().length - 1; i >= 0; i--) {
                 //Show scores
-                cardGame.$container.find(".score--player-" + (i + 1)).text(gameState.getPlayer(i).getScore());
+                cardGame.$container.find(".score--player-" + (i + 1)).text(game.getPlayer(i).getScore());
                 /* Remove the classes for the animation and add the classes for the position */
-                for (let j = gameState.getPlayer(i).getDeck().length; j >= 0; j--) {
-                    cardGame.$container.find(".card--player-" + (i + 1) + "-appearance-deck-" + j).addClass("card--deck-" + j)
+                for (let j = game.getPlayer(i).getDeck().length; j >= 0; j--) {
+                    cardGame.$container.find(".card--player-" + (i + 1) + "-appearance-deck-" + j)
+                        .addClass("card--deck-" + j)
                         .removeClass("card--out-board card--player-" + (i + 1) + "-appearance-deck-" + j);
                 }
             }
@@ -91,80 +90,28 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
 
             /* After the animation of the selector*/
             let animationDelay = parseFloat(cardGame.$container.find(".player-selector--draw-player-" + playerPlaying).css("animation-duration"));
-            setTimeout(() => startNewTurn(gameState), (animationDelay + .2) * 1000);
+            setTimeout(() => startNewTurn(game), (animationDelay + .2) * 1000);
         }
 
         /**
          * Start a new turn.
-         * If open is enabled, show a message and hide both decks.
-         * @param gameState State of the game
+         * @param game the game
          * @since 17.11.05
          */
-        function startNewTurn(gameState) {
-            let playerPlaying = gameState.getIndexPlayerPlaying() + 1;
+        function startNewTurn(game) {
+            let playerPlaying = GameHelper.getIndexPlayerTurn(game);
 
             //Move the selector to the player currently playing
             cardGame.$container.find(".player-selector")
                 .removeClass()
                 .addClass("player-selector player-selector--turn player-selector--turn-player-" + playerPlaying);
 
-            /* If the second player is an AI, a card is chosen for it */
-            if (gameState.isOnePlayerGame() && playerPlaying === 2) {
-                setTimeout(Routes.get(Routes.getKeys().AI_PLAYS_CARD), 100 * Math.floor(Math.random() * 15));
-                return;
+            //If the 2nd player is an AI, we ask the server to choose a card
+            if (game.getPlayer(1).isAnAI() && playerPlaying === 2) {
+                cardGame.webSocketGame.send(JSON.stringify({step: "AITurn", data: {gameRef: game.getGameRef()}}));
             }
 
-            /* If cards are hidden, show a message to indicate the player's turn until the enter key is pressed */
-            if (!gameState.isOnePlayerGame() && !Settings.isRuleEnabled(Rules.getRules().OPEN)) {
-                cardGame.$container.find(".cursor").addClass("cursor--hide");
-                cardGame.$container.find(".board__background").append($("<div>", {
-                        class: "text-title",
-                        text: gameState.getPlayerPlaying().getName() + "'s turn"
-                    })
-                );
-
-                cardGame.$container.keydown(function (e) {
-                    switch (e.which) {
-                        case Key.ENTER:
-                            showPlayersCards(gameState);
-                            break;
-
-                        default:
-                            return;
-                    }
-                });
-
-                cardGame.$container.find(".board__background").addClass("board__background--pointer");
-                cardGame.$container.find(".board__background").on("click", function () {
-                    showPlayersCards(gameState);
-                })
-
-            } else {
-                chooseCardToPlay(gameState);
-            }
-        }
-
-        /**
-         * Show the player's cards whose it's the turn.
-         * @since 17.11.20
-         */
-        function showPlayersCards(gameState) {
-            let playerPlaying = gameState.getIndexPlayerPlaying() + 1;
-
-            //Show the player's cards
-            cardGame.$container.find(".card.card--deck-player-" + playerPlaying).each(function () {
-                $(this).css("background-image", $(this).data("background"))
-                    .addClass("card--player-" + playerPlaying)
-                    .removeClass("card--back");
-            });
-
-            cardGame.$container.find(".text-title").remove();
-            cardGame.$container.find(".cursor").removeClass("cursor--hide");
-            cardGame.$container.off("keydown");
-            cardGame.$container.find(".board__background").removeClass("board__background--pointer");
-            cardGame.$container.find(".board__background").off("click");
-
-            chooseCardToPlay(gameState);
+            chooseCardToPlay(game);
         }
 
         /**
@@ -658,24 +605,25 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
 
         /**
          * Make the game view disappear to show the final screen.
+         * @param game the game
          * @since 17.11.20
          */
-        function gameDisappear(gameState) {
+        function gameDisappear(game) {
             cardGame.$container.off("click");
             cardGame.$container.find(".board__background").removeClass("board__background--pointer");
             cardGame.$container.off("keydown");
 
-            cardGame.$container.find(".board__background").fadeOut("slow", () => Routes.get(Routes.getKeys().FINAL_SCREEN)(gameState.isOnePlayerGame()));
+            cardGame.$container.find(".board__background").fadeOut("slow", () => Routes.get(Routes.getKeys().FINAL_SCREEN)(game.isOnePlayerGame()));
         }
 
         return {
             /**
              * Start the game (draw cards and the first player playing) and let the first player chooses a card to play.
-             * @param gameState State of the game
+             * @param game the game
              * @since 17.11.02
              */
-            startGame(gameState) {
-                initGame(gameState);
+            startGame(game) {
+                initGame(game);
             },
 
             /**

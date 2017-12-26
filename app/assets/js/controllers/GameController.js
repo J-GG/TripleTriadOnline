@@ -8,7 +8,8 @@
  */
 define([cardGame.gamePath + "js/views/game/GameScript.js",
     cardGame.gamePath + "js/models/Settings.js",
-    cardGame.gamePath + "js/models/GameEngine.js"], function (GameScript, Settings, GameEngine) {
+    cardGame.gamePath + "js/models/GameEngine.js",
+    cardGame.gamePath + "js/models/game/Game.js"], function (GameScript, Settings, GameEngine, Game) {
     return (function () {
 
         /**
@@ -28,42 +29,44 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
         return {
 
             /**
-             * Load and display the template and the script.
+             * Load, display the template and the script and start the game.
              * @since 17.10.30
              */
-            play(onePlayer) {
-                let websocket = new WebSocket("ws://localhost:9000/game/play");
+            startGame(player2Uid) {
+                let loc = window.location, webSocketUrl;
+                if (loc.protocol === "https:") {
+                    webSocketUrl = "wss:";
+                } else {
+                    webSocketUrl = "ws:";
+                }
+                webSocketUrl += "//" + loc.host;
 
-                websocket.onopen = function () {
-                    websocket.send(JSON.stringify({init: {player2Ref: ""}}));
+                cardGame.webSocketGame = new WebSocket(webSocketUrl + "/game/play");
+
+                cardGame.webSocketGame.onopen = function () {
+                    cardGame.webSocketGame.send(JSON.stringify({
+                        step: "init",
+                        data: {player2Ref: player2Uid === undefined ? "" : player2Uid}
+                    }));
                 };
 
-                websocket.onmessage = function (event) {
-                    console.log(JSON.parse(event.data));
+                cardGame.webSocketGame.onmessage = function (event) {
+                    let game = new Game(JSON.parse(event.data).game);
+                    let player2IsAI = game.getPlayer(1).isAnAI();
+
+                    let data = {
+                        player1: game.getPlayers()[0].getUsername(),
+                        player2: player2IsAI ? undefined : game.getPlayers()[1].getUsername(),
+                        onePlayer: player2IsAI,
+                        gamePath: cardGame.gamePath
+                    };
+
+                    $.get(TEMPLATE, function (source) {
+                        let template = Handlebars.compile(source);
+                        cardGame.$container.find(".board__game-area").html(template(data));
+                        GameScript.startGame(game);
+                    });
                 };
-
-                let data = {
-                    player1: Settings.getPlayer1Name(),
-                    player2: onePlayer === true ? undefined : Settings.getPlayer2Name(),
-                    onePlayer: onePlayer === true,
-                    gamePath: cardGame.gamePath
-                };
-
-                $.get(TEMPLATE, function (source) {
-                    let template = Handlebars.compile(source);
-                    cardGame.$container.find(".board__game-area").html(template(data));
-                    Routes.get(Routes.getKeys().START_GAME)(onePlayer);
-                });
-            },
-
-            /**
-             * Initialize and start the game.
-             * @since 17.11.04
-             */
-            startGame(onePlayer) {
-                gameEngine = new GameEngine();
-                let gameState = gameEngine.initGame(onePlayer);
-                GameScript.startGame(gameState);
             },
 
             /**

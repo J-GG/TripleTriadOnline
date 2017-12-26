@@ -24,7 +24,7 @@ public abstract class BaseModel extends Model {
      * @since 17.12.17
      */
     @Id
-    private UUID uid;
+    protected UUID uid;
 
     /**
      * The creation date
@@ -32,7 +32,7 @@ public abstract class BaseModel extends Model {
      * @since 17.12.17
      */
     @Column(nullable = false)
-    private final Date createdAt;
+    protected final Date createdAt;
 
     /**
      * Constructor setting the date of creation at now.

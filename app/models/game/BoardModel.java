@@ -56,8 +56,8 @@ public class BoardModel extends BaseModel {
      */
     public BoardModel() {
         this.cases = new ArrayList<>();
-        for (int row = 1; row <= this.NB_ROWS; row++) {
-            for (int col = 1; col <= this.NB_COLS; col++) {
+        for (int row = 0; row <= this.NB_ROWS; row++) {
+            for (int col = 0; col <= this.NB_COLS; col++) {
                 this.cases.add(new CaseModel(row, col));
             }
         }
@@ -82,16 +82,16 @@ public class BoardModel extends BaseModel {
      * @since 17.12.24
      */
     public CaseModel getCase(final int row, final int col) {
-        if (row < 1 || row > this.NB_ROWS) {
-            play.Logger.debug("The given row ({}) is out of range [1-{}]", row, this.NB_ROWS);
+        if (row < 0 || row > this.NB_ROWS - 1) {
+            play.Logger.debug("The given row ({}) is out of range [0-{}]", row, this.NB_ROWS - 1);
             return null;
         }
-        if (col < 1 || col > this.NB_COLS) {
-            play.Logger.debug("The given column ({}) is out of range [1-{}]", row, this.NB_COLS);
+        if (col < 0 || col > this.NB_COLS - 1) {
+            play.Logger.debug("The given column ({}) is out of range [0-{}]", row, this.NB_COLS - 1);
             return null;
         }
 
-        return this.cases.get((row - 1) * this.NB_ROWS + col - 1);
+        return this.cases.get(row * this.NB_ROWS + col);
     }
 
     /**

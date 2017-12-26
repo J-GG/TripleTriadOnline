@@ -3,16 +3,24 @@ package models.entity.membership;
 import models.membership.DefaultGameSettingsModel;
 import models.membership.MemberModel;
 
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
  * MemberEntity.
  *
  * @author Jean-Gabriel Genest
- * @version 17.12.19
+ * @version 17.12.26
  * @since 17.12.19
  */
 public class MemberEntity {
+
+    /**
+     * The unique identifier of the member.
+     *
+     * @since 17.12.26
+     */
+    private UUID memberRef;
 
     /**
      * The language of the interface.
@@ -44,6 +52,7 @@ public class MemberEntity {
      * @since 17.12.19
      */
     public MemberEntity(final MemberModel memberModel) {
+        this.memberRef = memberModel.getUid();
         this.username = memberModel.getUsername();
         this.memberSettings = new MemberSettingsEntity();
         this.memberSettings.setLanguage(memberModel.getMemberSettings().getLanguage());
@@ -51,6 +60,16 @@ public class MemberEntity {
         final DefaultGameSettingsModel defaultGameSettingsModel = memberModel.getMemberSettings().getDefaultGameSettings();
         this.memberSettings.getDefaultGameSettings().setDifficulty(defaultGameSettingsModel.getDifficulty().name());
         this.memberSettings.getDefaultGameSettings().setEnabledRules(defaultGameSettingsModel.getEnabledRules().stream().map(Enum::name).collect(Collectors.toList()));
+    }
+
+    /**
+     * Return the unique identifier of the member.
+     *
+     * @return the unique identifier of the member
+     * @since 17.12.26
+     */
+    public UUID getMemberRef() {
+        return this.memberRef;
     }
 
     /**

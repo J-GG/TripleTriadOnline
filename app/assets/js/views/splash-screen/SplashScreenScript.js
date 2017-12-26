@@ -10,7 +10,7 @@ define([cardGame.gamePath + "js/views/common/Common.js",
     cardGame.gamePath + "js/toolbox/Key.js",
     cardGame.gamePath + "js/views/common/Sound.js",
     cardGame.gamePath + "js/views/common/Forms.js",
-    cardGame.gamePath + "js/models/Member.js"], function (Common, Key, Sound, Forms, Member) {
+    cardGame.gamePath + "js/models/membership/Member.js"], function (Common, Key, Sound, Forms, Member) {
 
     /**
      * Manage the main menu for authenticated users.
@@ -24,10 +24,10 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                     Sound.play(Sound.getKeys().SELECT);
                     switch (e.choice) {
                         case 1:
-                            Routes.get(Routes.getKeys().PLAY)(true);
+                            Routes.get(Routes.getKeys().START_GAME)();
                             break;
                         case 2:
-                            Routes.get(Routes.getKeys().PLAY)();
+                            Routes.get(Routes.getKeys().START_GAME)();
                             break;
                         case 3:
                             Routes.get(Routes.getKeys().SETTINGS)();

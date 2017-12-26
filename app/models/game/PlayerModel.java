@@ -115,4 +115,22 @@ public class PlayerModel extends BaseModel {
         }
         this.deck = cards;
     }
+
+    /**
+     * Get the player's score based on the number of owned cards (in deck + on board).
+     *
+     * @return the player's score
+     * @since 17.12.26
+     */
+    public int getScore() {
+        int score = this.deck.size();
+
+        for (final CaseModel caseModel : this.game.getBoard().getCases()) {
+            if (caseModel.getCardOnCase() != null && caseModel.getCardOnCase().getPlayer().getUid() == this.uid) {
+                score++;
+            }
+        }
+
+        return score;
+    }
 }

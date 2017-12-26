@@ -11,7 +11,7 @@ define([cardGame.gamePath + "js/views/common/Common.js",
         cardGame.gamePath + "js/toolbox/Key.js",
         cardGame.gamePath + "js/models/Rules.js",
         cardGame.gamePath + "js/views/common/Sound.js",
-        cardGame.gamePath + "js/models/Member.js"],
+        cardGame.gamePath + "js/models/membership/Member.js"],
     function (Common, Settings, Key, Rules, Sound, Member) {
         return {
             manageSettings() {

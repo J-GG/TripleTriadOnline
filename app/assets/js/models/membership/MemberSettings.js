@@ -1,10 +1,12 @@
+'use strict';
+
 /**
  * A member's settings. It is also used to communicate with the backend.
  * @author Jean-Gabriel Genest
  * @since 17.12.19
  * @version 17.12.19
  */
-define([cardGame.gamePath + "js/models/DefaultGameSettings.js"], function (DefaultGameSettings) {
+define([cardGame.gamePath + "js/models/membership/DefaultGameSettings.js"], function (DefaultGameSettings) {
     return class MemberSettings {
 
         /**
