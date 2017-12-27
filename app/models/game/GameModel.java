@@ -154,11 +154,22 @@ public class GameModel extends BaseModel {
     /**
      * Return the list of players.
      *
-     * @return the list of players.
+     * @return the list of players
      * @since 17.12.23
      */
     public List<PlayerModel> getPlayers() {
         return this.players;
+    }
+
+
+    /**
+     * Return the player at the given index.
+     *
+     * @return the player
+     * @since 17.12.27
+     */
+    public PlayerModel getPlayer(final int index) {
+        return this.players.get(index);
     }
 
     /**

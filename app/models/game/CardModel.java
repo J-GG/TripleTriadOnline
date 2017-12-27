@@ -4,17 +4,14 @@ import io.ebean.Finder;
 import models.BaseModel;
 import models.membership.MemberModel;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.List;
 
 /**
  * CardModel.
  *
  * @author Jean-Gabriel Genest
- * @version 17.12.23
+ * @version 17.12.27
  * @since 17.12.18
  */
 @Entity
@@ -33,6 +30,7 @@ public class CardModel extends BaseModel {
      *
      * @since 17.12.23
      */
+    @Column(unique = true)
     private String name;
 
     /**
@@ -75,7 +73,7 @@ public class CardModel extends BaseModel {
      *
      * @since 17.12.23
      */
-    public static final int MAX_LEVEL = 10;
+    public static final int MAX_LEVEL = 1;
 
     /**
      * The list of members owning this card.

@@ -34,7 +34,7 @@ define([], function () {
          * @returns {*} the identifier of the card on case
          * @since 17.12.26
          */
-        getCardOnCase() {
+        getCardOnCaseRef() {
             return this.cardOnCaseRef;
         }
 

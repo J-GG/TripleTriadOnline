@@ -10,7 +10,7 @@ import javax.persistence.Table;
  * CardOnCaseModel.
  *
  * @author Jean-Gabriel Genest
- * @version 17.12.23
+ * @version 17.12.27
  * @since 17.12.23
  */
 @Entity
@@ -55,6 +55,16 @@ public class CardOnCaseModel extends CardInGameModel {
      */
     public CardOnCaseModel(final PlayerModel player, final CardModel card) {
         super(player, card);
+    }
+
+    /**
+     * Create a new card on case based on a card in deck. It is used to "move" a card from the deck to the board
+     *
+     * @param cardInDeck the card which was in the deck
+     * @since 17.12.24
+     */
+    public CardOnCaseModel(final CardInDeckModel cardInDeck) {
+        this(cardInDeck.getPlayer(), cardInDeck.getCard());
     }
 
     /**

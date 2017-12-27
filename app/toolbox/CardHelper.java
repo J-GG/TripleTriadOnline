@@ -38,7 +38,7 @@ public class CardHelper {
         final List<CardModel> cards = new ArrayList<>();
         draw_card:
         for (int i = 0; i < numberOfCards; i++) {
-            final int randomNumber = randomGenerator.nextInt(sum + 1);
+            final int randomNumber = randomGenerator.nextInt(sum);
             int seek = 0;
             for (final CardModel card : allCards) {
                 if (randomNumber < seek + CardModel.MAX_LEVEL + 1 - card.getLevel()) {
@@ -50,7 +50,7 @@ public class CardHelper {
             }
         }
 
-        Logger.info("{} cards have been randomly picked", numberOfCards);
+        Logger.info("{} cards have been randomly picked", cards.size());
 
         return cards;
     }

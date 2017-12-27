@@ -6,7 +6,8 @@
  * @since 17.10.30
  * @version 17.12.21
  */
-define([cardGame.gamePath + "js/views/splash-screen/SplashScreenScript.js"], function (splashScreenScript) {
+define([cardGame.gamePath + "js/views/splash-screen/SplashScreenScript.js",
+    cardGame.gamePath + "js/models/membership/Member.js"], function (splashScreenScript, Member) {
     return (function () {
 
         /**
@@ -75,6 +76,20 @@ define([cardGame.gamePath + "js/views/splash-screen/SplashScreenScript.js"], fun
                     let template = Handlebars.compile(source);
                     cardGame.$container.find(".board__background").append(template(data));
                     splashScreenScript.showSignupForm();
+                });
+            },
+
+            /**
+             * Log out the member.
+             * @since 17.12.27
+             */
+            logout() {
+                $.get({
+                    url: "/logout",
+                    dataType: "json"
+                }).done(function (response) {
+                    cardGame.member = new Member(response.member);
+                    Routes.get(Routes.getKeys().SPLASH_SCREEN)();
                 });
             }
         }

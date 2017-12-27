@@ -62,6 +62,16 @@ define([cardGame.gamePath + "js/models/game/CardinDeck.js"], function (CardInDec
         }
 
         /**
+         * Get a card in the player's deck.
+         * @param index The index of the card
+         * @returns {*} the card
+         * @since 17.12.27
+         */
+        getCard(index) {
+            return this.deck[index];
+        }
+
+        /**
          * Get the player's score.
          * @returns {*} the player's score
          */

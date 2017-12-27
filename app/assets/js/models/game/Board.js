@@ -4,7 +4,7 @@
  * A Board.
  * @author Jean-Gabriel Genest
  * @since 17.12.26
- * @version 17.12.26
+ * @version 17.12.27
  */
 define([cardGame.gamePath + "js/models/game/Case.js"], function (Case) {
     return class Board {
@@ -41,8 +41,37 @@ define([cardGame.gamePath + "js/models/game/Case.js"], function (Case) {
          * @returns {*} the number of columns
          * @since 17.12.26
          */
-        getNbColums() {
+        getNbCols() {
             return this.nbCols;
+        }
+
+        /**
+         * Get the array of cases.
+         * @returns {Array} the array of cases
+         * @since 17.12.27
+         */
+        getCases() {
+            return this.cases;
+        }
+
+        /**
+         * Get the case.
+         * @param row the row of the case
+         * @param col the column of the case
+         * @returns {Array} the case
+         * @since 17.12.27
+         */
+        getCase(row, col) {
+            if (row < 0 || row >= this.nbRows) {
+                logger.warning("The row should be between 0 and " + (this.rows - 1) + " but [row: " + row + "] found");
+                return;
+            }
+            if (col < 0 || col >= this.nbCols) {
+                logger.warning("The column should be between 0 and " + (this.cols - 1) + " but [col: " + col + "] found");
+                return;
+            }
+
+            return this.cases[row][col];
         }
     }
 });

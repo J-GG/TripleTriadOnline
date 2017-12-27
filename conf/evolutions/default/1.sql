@@ -26,6 +26,7 @@ create table card (
   right_value                   integer,
   bottom_value                  integer,
   left_value                    integer,
+  constraint uq_card_name unique (name),
   constraint pk_card primary key (uid)
 );
 

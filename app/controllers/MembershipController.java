@@ -56,7 +56,7 @@ public class MembershipController extends Controller {
         if (form.getMember() == null) {
             throw new RuntimeException("404");
         }
-        Logger.info("Member [uid: {}] is now logged in", form.getMember().getUid());
+        Logger.info("Member [{}] is now logged in", form.getMember().getUid());
 
         ctx().session().put("memberUid", form.getMember().getUid().toString());
 
@@ -89,7 +89,7 @@ public class MembershipController extends Controller {
         member.getMemberSettings().setLanguage(lang().language());
 
         member.save();
-        Logger.info("Member [uid: {}] just signed up and is now logged in", member.getUid());
+        Logger.info("Member [{}] just signed up and is now logged in", member.getUid());
 
         ctx().session().put("memberUid", member.getUid().toString());
 
@@ -107,7 +107,7 @@ public class MembershipController extends Controller {
      */
     @Security.Authenticated(Authenticator.class)
     public Result GET_Logout() {
-        Logger.info("Member [uid: {}] has logged out", SessionHelper.getMember().getUid());
+        Logger.info("Member [{}] has logged out", SessionHelper.getMember().getUid());
 
         ctx().session().clear();
 

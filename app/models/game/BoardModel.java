@@ -56,8 +56,8 @@ public class BoardModel extends BaseModel {
      */
     public BoardModel() {
         this.cases = new ArrayList<>();
-        for (int row = 0; row <= this.NB_ROWS; row++) {
-            for (int col = 0; col <= this.NB_COLS; col++) {
+        for (int row = 0; row < this.NB_ROWS; row++) {
+            for (int col = 0; col < this.NB_COLS; col++) {
                 this.cases.add(new CaseModel(row, col));
             }
         }

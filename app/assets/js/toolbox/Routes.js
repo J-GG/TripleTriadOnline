@@ -23,11 +23,14 @@ define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
                 SPLASH_SCREEN: "SPLASH_SCREEN",
                 LOGIN_FORM: "LOGIN_FORM",
                 SIGNUP_FORM: "SIGNUP_FORM",
+                LOGOUT: "LOGOUT",
                 SETTINGS: "SETTINGS",
                 START_GAME: "START_GAME",
                 PLAYER_PLAYS_CARD: "PLAYER_PLAYS_CARD",
                 END_TURN: "END_TURN",
-                FINAL_SCREEN: "FINAL_SCREEN"
+                FINAL_SCREEN: "FINAL_SCREEN",
+                AI_TURN: "AI_TURN",
+                WAIT_PLAYER: "WAIT_PLAYER"
             };
 
             /**
@@ -39,9 +42,12 @@ define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
                 [keys.SPLASH_SCREEN]: SplashScreenController.splashScreen,
                 [keys.LOGIN_FORM]: SplashScreenController.loginForm,
                 [keys.SIGNUP_FORM]: SplashScreenController.signupForm,
+                [keys.LOGOUT]: SplashScreenController.logout,
                 [keys.SETTINGS]: SettingsController.settings,
                 [keys.START_GAME]: GameController.startGame,
                 [keys.PLAYER_PLAYS_CARD]: GameController.playerPlaysCard,
+                [keys.AI_TURN]: GameController.AITurn,
+                [keys.WAIT_PLAYER]: GameController.waitPlayer,
                 [keys.END_TURN]: GameController.endTurn,
                 [keys.FINAL_SCREEN]: FinalScreenController.finalScreen
             };

@@ -33,13 +33,7 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                             Routes.get(Routes.getKeys().SETTINGS)();
                             break;
                         default:
-                            $.get({
-                                url: "/logout",
-                                dataType: "json"
-                            }).done(function (response) {
-                                cardGame.member = new Member(response.member);
-                                Routes.get(Routes.getKeys().SPLASH_SCREEN)();
-                            });
+                            Routes.get(Routes.getKeys().LOGOUT)();
                             break;
                     }
                     break;

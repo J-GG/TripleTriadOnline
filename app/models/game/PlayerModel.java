@@ -103,6 +103,30 @@ public class PlayerModel extends BaseModel {
     }
 
     /**
+     * Remove the card from the deck at the given index and return it.
+     *
+     * @param index the index of the card to remove
+     * @return the removed card
+     * @since 17.12.27
+     */
+    public CardInDeckModel removeCard(final int index) {
+        return this.deck.remove(index);
+    }
+
+    /**
+     * Remove the card from the deck at the given index and return it.
+     *
+     * @param cardToRemove the card to remove
+     * @return the index of the removed card or -1 if it couldn't be found
+     * @since 17.12.27
+     */
+    public int removeCard(final CardInDeckModel cardToRemove) {
+        final int index = this.deck.indexOf(cardToRemove);
+        this.deck.remove(cardToRemove);
+        return index;
+    }
+
+    /**
      * Set the player's deck.
      *
      * @param deck the player's deck
