@@ -12,6 +12,7 @@ import models.membership.MemberModel;
 import play.Logger;
 import play.libs.Json;
 import toolbox.CardHelper;
+import toolbox.rules.RulesFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -246,7 +247,7 @@ public class GameActor extends UntypedAbstractActor {
         final int col;
         final CardInDeckModel cardInDeck;
         final PlayerModel playerTurn;
-        
+
         if (jsonData.has("cardPlayedRef") && jsonData.has("row") && jsonData.has("col")) { //Human
             cardInDeck = CardInDeckModel.find.query()
                     .where()
@@ -304,6 +305,7 @@ public class GameActor extends UntypedAbstractActor {
         cardInDeck.delete();
 
         this.game.getBoard().getCase(row, col).setCardOnCase(new CardOnCaseModel(cardInDeck));
+        RulesFactory.applyRules(this.game, row, col);
         this.game.setPlayerTurn(this.game.getNextPlayer(playerTurn));
 
         final boolean gameIsOver = this.game.getBoard().getCases().stream().noneMatch(caseModel -> caseModel.getCardOnCase() == null);
