@@ -24,7 +24,7 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                     Sound.play(Sound.getKeys().SELECT);
                     switch (e.choice) {
                         case 1:
-                            Routes.get(Routes.getKeys().START_GAME)({gameRef: "240cce31-79c8-4695-9d3b-bd8180db7ed9"});
+                            Routes.get(Routes.getKeys().START_GAME)({gameRef: "26778c47-fe8a-4e29-8f60-c25508a7231a"});
                             break;
                         case 2:
                             Routes.get(Routes.getKeys().START_GAME)({member2Ref: "34dba0d7-2a41-45cc-89c5-e50744147b29"});

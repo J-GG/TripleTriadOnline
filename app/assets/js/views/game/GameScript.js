@@ -167,7 +167,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
             } else {
                 //If the 2nd player is an AI, we ask the server to choose a card
                 if (game.getPlayer(1).isAnAI() && playerPlaying === 2) {
-                    Routes.get(Routes.getKeys().PLAYER_PLAYS_CARD)(game.getGameRef());
+                    Routes.get(Routes.getKeys().PLAYER_PLAYS_CARD)();
                 } else {
                     //If the player is a human, we wait for the next move
                     Routes.get(Routes.getKeys().PLAYER_WAIT)();
@@ -332,8 +332,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                             cardGame.$container.off("keydown");
 
                             Sound.play(Sound.getKeys().SELECT);
-                            Routes.get(Routes.getKeys().PLAYER_PLAYS_CARD)(game.getGameRef(),
-                                GameHelper.getPlayerFromRef(game, game.getPlayerTurnRef()).getCard(selectedCard).getCardInDeckRef(),
+                            Routes.get(Routes.getKeys().PLAYER_PLAYS_CARD)(GameHelper.getPlayerFromRef(game, game.getPlayerTurnRef()).getCard(selectedCard).getCardInDeckRef(),
                                 currentRow,
                                 currentCol);
                         }
@@ -397,8 +396,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                     cardGame.$container.off("keydown");
 
                     Sound.play(Sound.getKeys().SELECT);
-                    Routes.get(Routes.getKeys().PLAYER_PLAYS_CARD)(game.getGameRef(),
-                        GameHelper.getPlayerFromRef(game, game.getPlayerTurnRef()).getCard(selectedCard).getCardInDeckRef(),
+                    Routes.get(Routes.getKeys().PLAYER_PLAYS_CARD)(GameHelper.getPlayerFromRef(game, game.getPlayerTurnRef()).getCard(selectedCard).getCardInDeckRef(),
                         row,
                         col);
                 }
@@ -694,6 +692,20 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                 .addClass("player-name__avatar--logged-in");
         }
 
+        /**
+         * Notify that the given player left the game.
+         * @param game the game
+         * @param playerRef the player who left the game
+         * @since 18.01.01
+         */
+        function playerLeftGame(game, playerRef) {
+            let playerIndex = GameHelper.getPlayerIndexFromRef(game, playerRef);
+
+            cardGame.$container.find(".player-name__avatar--player-" + (playerIndex + 1))
+                .removeClass("player-name__avatar--logged-in")
+                .addClass("player-name__avatar--logged-out");
+        }
+
         return {
             /**
              * Start the game (draw cards and the first player playing) and let the first player chooses a card to play.
@@ -725,6 +737,16 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
              */
             playerJoinedGame(game, playerRef) {
                 playerJoinedGame(game, playerRef);
+            },
+
+            /**
+             * Notify that the given player left the game.
+             * @param game the game
+             * @param playerRef the player who left the game
+             * @since 18.01.01
+             */
+            playerLeftGame(game, playerRef) {
+                playerLeftGame(game, playerRef);
             }
         };
     });

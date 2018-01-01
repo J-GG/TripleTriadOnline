@@ -14,6 +14,7 @@ import play.libs.Json;
 import toolbox.CardHelper;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * GameActor.
@@ -39,7 +40,21 @@ public class GameActor extends UntypedAbstractActor {
     private final MemberModel member;
 
     /**
-     * Association between each member and their actor.
+     * The player.
+     *
+     * @since 18.01.01
+     */
+    private PlayerModel player;
+
+    /**
+     * The game.
+     *
+     * @since 18.01.01
+     */
+    private GameModel game;
+
+    /**
+     * Association between each player and their actor.
      *
      * @since 17.12.26
      */
@@ -95,7 +110,23 @@ public class GameActor extends UntypedAbstractActor {
 
     @Override
     public void postStop() throws Exception {
-        connections.remove(this.member.getUid());
+
+        final ObjectNode logoutResult = Json.newObject();
+        final ObjectNode logoutData = Json.newObject();
+        logoutData.set("game", Json.toJson(new GameEntity(this.game)));
+        logoutData.put("playerRef", this.player.getUid().toString());
+        logoutResult.set("data", logoutData);
+        logoutResult.put("message", "left");
+
+        final List<PlayerModel> players = this.game.getPlayers();
+        for (final PlayerModel playerModel : players) {
+            if (playerModel.getMember() != null && !playerModel.getUid().equals(this.player.getUid()) && connections.containsKey(playerModel.getUid())) {
+                connections.get(playerModel.getUid()).tell(logoutResult.toString(), ActorRef.noSender());
+            }
+        }
+
+        connections.remove(this.player.getUid());
+
         super.postStop();
     }
 
@@ -106,20 +137,20 @@ public class GameActor extends UntypedAbstractActor {
      * @since 17.12.26
      */
     private void start(final JsonNode jsonData) {
-        final GameModel game;
         if (jsonData.has("gameRef")) {
-            game = GameModel.find.query()
+            this.game = GameModel.find.query()
                     .where()
                     .eq("uid", jsonData.get("gameRef").asText())
                     .findUnique();
 
-            if (game == null) {
+            if (this.game == null) {
                 Logger.error("Couldn't find the game [{}]", jsonData.get("gameRef").asText());
                 throw new RuntimeException("404");
             }
 
-            if (game.getPlayers().stream().filter(playerModel -> playerModel.getMember() != null).noneMatch(playerModel -> this.member.getUid().equals(playerModel.getMember().getUid()))) {
-                Logger.error("The member [{}] is not a player of the game [{}]", this.member.getUid(), game.getUid());
+            this.player = this.game.getPlayers().stream().filter(playerModel -> playerModel.getMember() != null && playerModel.getMember().getUid().equals(this.member.getUid())).findFirst().orElse(null);
+            if (this.player == null) {
+                Logger.error("The member [{}] is not a player of the game [{}]", this.member.getUid(), this.game.getUid());
                 throw new RuntimeException("403");
             }
         } else {
@@ -140,50 +171,55 @@ public class GameActor extends UntypedAbstractActor {
                 Logger.info("Member [{}] started a new game against [{}]", this.member.getUid(), member2 != null ? member2.getUid() : "AI");
             }
 
-            final PlayerModel player1 = new PlayerModel(this.member);
+            this.player = new PlayerModel(this.member);
             final PlayerModel player2 = new PlayerModel(member2);
-            player1.setDeck(CardHelper.getRandomCards(5));
+            this.player.setDeck(CardHelper.getRandomCards(5));
             player2.setDeck(CardHelper.getRandomCards(5));
-            game = new GameModel();
-            game.addPlayer(player1);
-            game.addPlayer(player2);
-            game.setDifficulty(this.member.getMemberSettings().getDefaultGameSettings().getDifficulty());
-            game.setEnabledRules(this.member.getMemberSettings().getDefaultGameSettings().getEnabledRules());
+            this.game = new GameModel();
+            this.game.addPlayer(this.player);
+            this.game.addPlayer(player2);
+            this.game.setDifficulty(this.member.getMemberSettings().getDefaultGameSettings().getDifficulty());
+            this.game.setEnabledRules(this.member.getMemberSettings().getDefaultGameSettings().getEnabledRules());
 
             final Random randomGenerator = new Random();
-            final int randomNumber = randomGenerator.nextInt(game.getPlayers().size());
-            game.setPlayerTurn(game.getPlayers().get(randomNumber));
-            game.save();
+            final int randomNumber = randomGenerator.nextInt(this.game.getPlayers().size());
+            this.game.setPlayerTurn(this.game.getPlayers().get(randomNumber));
+            this.game.save();
         }
+        connections.put(this.player.getUid(), this.out);
 
         final ObjectNode startResult = Json.newObject();
-        final ObjectNode data = Json.newObject();
+        final ObjectNode startData = Json.newObject();
         final ArrayNode loggedInPlayers = Json.newArray();
-        connections.keySet().forEach(uuid -> loggedInPlayers.add(uuid.toString()));
-        data.set("game", Json.toJson(new GameEntity(game)));
-        data.set("loggedInPlayersRef", loggedInPlayers);
-        startResult.set("data", data);
+        connections.keySet().stream()
+                .filter(uuid ->
+                        this.game.getPlayers().stream()
+                                .map(PlayerModel::getUid)
+                                .collect(Collectors.toList())
+                                .contains(uuid))
+                .forEach(uuid ->
+                        loggedInPlayers.add(uuid.toString()));
+        final JsonNode gameNode = Json.toJson(new GameEntity(this.game));
+        startData.set("game", gameNode);
+        startData.set("playersPlaying", loggedInPlayers);
+        startResult.set("data", startData);
         startResult.put("message", "start");
 
-        this.out.tell(startResult.toString(), self());
+        this.out.tell(startResult.toString(), ActorRef.noSender());
 
-        final ObjectNode loginResult = Json.newObject();
-        final PlayerModel playerLoggedIn = game.getPlayers().stream()
-                .filter(playerModel -> playerModel.getMember() != null && playerModel.getMember().getUid().equals(this.member.getUid()))
-                .findFirst()
-                .orElseGet(null);
-        data.put("playerRef", playerLoggedIn.getUid().toString());
-        loginResult.set("data", data);
-        loginResult.put("message", "login");
+        final ObjectNode joinedResult = Json.newObject();
+        final ObjectNode joinedData = Json.newObject();
+        joinedData.set("game", gameNode);
+        joinedData.put("playerRef", this.player.getUid().toString());
+        joinedResult.set("data", joinedData);
+        joinedResult.put("message", "joined");
 
-        final List<PlayerModel> players = game.getPlayers();
-        for (final PlayerModel player : players) {
-            if (player.getMember() != null && connections.containsKey(player.getMember().getUid())) {
-                connections.get(player.getMember().getUid()).tell(loginResult.toString(), self());
+        final List<PlayerModel> players = this.game.getPlayers();
+        for (final PlayerModel playerModel : players) {
+            if (playerModel.getMember() != null && !playerModel.getUid().equals(this.player.getUid()) && connections.containsKey(playerModel.getUid())) {
+                connections.get(playerModel.getUid()).tell(joinedResult.toString(), ActorRef.noSender());
             }
         }
-
-        connections.put(this.member.getUid(), this.out);
     }
 
     /**
@@ -194,30 +230,23 @@ public class GameActor extends UntypedAbstractActor {
      * @since 17.12.31
      */
     private void playerTurn(final JsonNode jsonData) {
-        if (!jsonData.has("gameRef")) {
-            Logger.error("GameRef is missing");
+        if (this.game == null || this.player == null) {
+            Logger.error("No player or game");
             throw new RuntimeException("404");
         }
-
-        final GameModel game = GameModel.find.query()
+        this.game = GameModel.find.query()
                 .where()
-                .eq("uid", jsonData.get("gameRef").asText())
+                .eq("uid", this.game.getUid())
                 .findUnique();
-
-        if (game == null) {
-            Logger.error("Couldn't find the game [{}]", jsonData.get("gameRef").asText());
-            throw new RuntimeException("404");
-        }
-
-        if (game.getPlayers().stream().noneMatch(playerModel -> this.member.getPlayers().contains(playerModel))) {
-            Logger.error("The member [{}] is not a player of the game [{}]", this.member.getUid(), game.getUid());
-            throw new RuntimeException("403");
-        }
-
+        this.player = PlayerModel.find.query()
+                .where()
+                .eq("uid", this.player.getUid())
+                .findUnique();
         final int row;
         final int col;
         final CardInDeckModel cardInDeck;
-        final PlayerModel player;
+        final PlayerModel playerTurn;
+        
         if (jsonData.has("cardPlayedRef") && jsonData.has("row") && jsonData.has("col")) { //Human
             cardInDeck = CardInDeckModel.find.query()
                     .where()
@@ -227,46 +256,40 @@ public class GameActor extends UntypedAbstractActor {
             row = jsonData.get("row").asInt();
             col = jsonData.get("col").asInt();
 
-            if (cardInDeck == null) {
-                Logger.error("The card in deck [{}] couldn't be found ", jsonData.get("cardPlayerRef").asText());
+            if (cardInDeck == null || !this.player.getDeck().contains(cardInDeck)) {
+                Logger.error("The card in deck [{}] couldn't be found in the player's [{}] deck ", jsonData.get("cardPlayerRef").asText(), this.player.getUid());
                 throw new RuntimeException("404");
             }
 
-            if (row < 0 || row >= game.getBoard().getNbRows() || col < 0 || col >= game.getBoard().getNbCols()) {
-                Logger.error("Coordinates ({}, {}) out of range ({}, {})", row, col, game.getBoard().getNbRows(), game.getBoard().getNbCols());
+            if (row < 0 || row >= this.game.getBoard().getNbRows() || col < 0 || col >= this.game.getBoard().getNbCols()) {
+                Logger.error("Coordinates ({}, {}) out of range ({}, {})", row, col, this.game.getBoard().getNbRows(), this.game.getBoard().getNbCols());
                 throw new RuntimeException("404");
             }
 
-            if (game.getBoard().getCase(row, col).getCardOnCase() != null) {
-                Logger.error("The case ({}, {}) in the game [{}] is not empty", row, col, game.getUid());
+            if (this.game.getBoard().getCase(row, col).getCardOnCase() != null) {
+                Logger.error("The case ({}, {}) in the game [{}] is not empty", row, col, this.game.getUid());
                 throw new RuntimeException("403");
             }
 
-            player = cardInDeck.getPlayer();
-            if (!game.getPlayers().contains(player) || !this.member.getPlayers().contains(player)) {
-                Logger.error("The player [{}] doesn't match belong to the game [{}] nor the member [{}]", player.getUid(), game.getUid(), this.member.getUid());
+            if (!this.game.getPlayerTurn().getUid().equals(this.player.getUid())) {
+                Logger.error("It's not the player's [{}] turn in the game [{}]", this.player.getUid(), this.game.getUid());
                 throw new RuntimeException("403");
             }
-
-            if (!game.getPlayerTurn().getUid().equals(player.getUid())) {
-                Logger.error("It's not the player's [{}] turn in the game [{}]", player.getUid(), game.getUid());
-                throw new RuntimeException("403");
-            }
-
+            playerTurn = this.player;
         } else { //AI
-            player = game.getPlayerTurn();
-            if (player.getMember() != null) {
-                Logger.error("The player [{}] is not an AI", player.getUid());
+            playerTurn = this.game.getPlayerTurn();
+            if (playerTurn.getMember() != null) {
+                Logger.error("The player [{}] is not an AI", playerTurn.getUid());
                 throw new RuntimeException("403");
             }
 
             final Random randomGenerator = new Random();
 
-            final int selectedCardIndex = randomGenerator.nextInt(player.getDeck().size());
-            cardInDeck = player.getDeck().get(selectedCardIndex);
+            final int selectedCardIndex = randomGenerator.nextInt(playerTurn.getDeck().size());
+            cardInDeck = playerTurn.getDeck().get(selectedCardIndex);
 
             final List<CaseModel> emptyCases = new ArrayList<>();
-            for (final CaseModel caseModel : game.getBoard().getCases()) {
+            for (final CaseModel caseModel : this.game.getBoard().getCases()) {
                 if (caseModel.getCardOnCase() == null) {
                     emptyCases.add(caseModel);
                 }
@@ -277,33 +300,33 @@ public class GameActor extends UntypedAbstractActor {
             col = selectedCase.getCol();
         }
 
-        final int cardInDeckIndex = player.removeCard(cardInDeck);
+        final int cardInDeckIndex = playerTurn.removeCard(cardInDeck);
         cardInDeck.delete();
 
-        game.getBoard().getCase(row, col).setCardOnCase(new CardOnCaseModel(cardInDeck));
-        game.setPlayerTurn(game.getNextPlayer(player));
+        this.game.getBoard().getCase(row, col).setCardOnCase(new CardOnCaseModel(cardInDeck));
+        this.game.setPlayerTurn(this.game.getNextPlayer(playerTurn));
 
-        final boolean gameIsOver = game.getBoard().getCases().stream().noneMatch(caseModel -> caseModel.getCardOnCase() == null);
-        game.setGameOver(gameIsOver);
+        final boolean gameIsOver = this.game.getBoard().getCases().stream().noneMatch(caseModel -> caseModel.getCardOnCase() == null);
+        this.game.setGameOver(gameIsOver);
 
-        game.save();
+        this.game.save();
 
         final ObjectNode result = Json.newObject();
         final ObjectNode data = Json.newObject();
-        data.set("game", Json.toJson(new GameEntity(game)));
+        data.set("game", Json.toJson(new GameEntity(this.game)));
         final ObjectNode cardPlayedNode = Json.newObject();
         cardPlayedNode.put("cardPlayedIndex", cardInDeckIndex);
-        cardPlayedNode.put("playerRef", player.getUid().toString());
+        cardPlayedNode.put("playerRef", playerTurn.getUid().toString());
         cardPlayedNode.put("row", row);
         cardPlayedNode.put("col", col);
         data.set("cardPlayed", cardPlayedNode);
         result.set("data", data);
         result.put("message", "playerTurn");
 
-        final List<PlayerModel> players = game.getPlayers();
+        final List<PlayerModel> players = this.game.getPlayers();
         for (final PlayerModel playerModel : players) {
-            if (player.getMember() != null && connections.containsKey(playerModel.getMember().getUid())) {
-                connections.get(playerModel.getMember().getUid()).tell(result.toString(), self());
+            if (playerModel.getMember() != null && connections.containsKey(playerModel.getUid())) {
+                connections.get(playerModel.getUid()).tell(result.toString(), ActorRef.noSender());
             }
         }
     }
