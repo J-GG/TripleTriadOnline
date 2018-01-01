@@ -7,6 +7,7 @@ import models.game.PlayerModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * GameEntity.
@@ -53,6 +54,21 @@ public class GameEntity {
     private final List<RuleEnum> enabledRules;
 
     /**
+     * Whether the game is over or not.
+     *
+     * @since 17.12.31
+     */
+    private final boolean gameOver;
+
+
+    /**
+     * The list of winners' identifiers.
+     *
+     * @since 17.12.26
+     */
+    private final List<UUID> winnersRef;
+
+    /**
      * Create a new GameEntity based on a GameModel.
      *
      * @param gameModel the model of the entity
@@ -67,6 +83,8 @@ public class GameEntity {
         }
         this.board = new BoardEntity(gameModel.getBoard());
         this.enabledRules = gameModel.getEnabledRules();
+        this.gameOver = gameModel.isGameOver();
+        this.winnersRef = gameModel.getWinners().stream().map(PlayerModel::getUid).collect(Collectors.toList());
     }
 
     /**
@@ -117,5 +135,25 @@ public class GameEntity {
      */
     public List<RuleEnum> getEnabledRules() {
         return this.enabledRules;
+    }
+
+    /**
+     * Return whether is the game is over or not.
+     *
+     * @return true if the game is over
+     * @since 18.01.01
+     */
+    public boolean isGameOver() {
+        return this.gameOver;
+    }
+
+    /**
+     * Return the list of winners' identifiers.
+     *
+     * @return the list of winners' identifiers. An empty list if the game is not over
+     * @since 18.01.01
+     */
+    public List<UUID> getWinnersRef() {
+        return this.winnersRef;
     }
 }

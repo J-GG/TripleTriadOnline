@@ -16,7 +16,7 @@ public class CaseEntity {
      *
      * @since 17.12.24
      */
-    private CardOnCaseEntity card;
+    private CardOnCaseEntity cardOnCase;
 
     /**
      * Create a new CaseEntity based on a CaseModel.
@@ -26,7 +26,7 @@ public class CaseEntity {
      */
     public CaseEntity(final CaseModel caseModel) {
         if (caseModel.getCardOnCase() != null) {
-            this.card = new CardOnCaseEntity(caseModel.getCardOnCase());
+            this.cardOnCase = new CardOnCaseEntity(caseModel.getCardOnCase());
         }
     }
 
@@ -36,7 +36,7 @@ public class CaseEntity {
      * @return the card on the case
      * @since 17.12.24
      */
-    public CardOnCaseEntity getCard() {
-        return this.card;
+    public CardOnCaseEntity getCardOnCase() {
+        return this.cardOnCase;
     }
 }

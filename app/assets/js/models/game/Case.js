@@ -15,8 +15,8 @@ define([cardGame.gamePath + "js/models/game/CardOnCase.js"], function (CardOnCas
          * @since 17.12.26
          */
         constructor(caseJson) {
-            if (caseJson !== null && caseJson.card !== null) {
-                this.cardOnCase = new CardOnCase(caseJson.card);
+            if (caseJson !== null && caseJson.cardOnCase !== null) {
+                this.cardOnCase = new CardOnCase(caseJson.cardOnCase);
             }
         }
 

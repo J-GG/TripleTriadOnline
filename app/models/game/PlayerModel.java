@@ -12,7 +12,7 @@ import java.util.List;
  * PlayerModel.
  *
  * @author Jean-Gabriel Genest
- * @version 17.12.23
+ * @version 17.12.31
  * @since 17.12.23
  */
 @Entity
@@ -150,7 +150,7 @@ public class PlayerModel extends BaseModel {
         int score = this.deck.size();
 
         for (final CaseModel caseModel : this.game.getBoard().getCases()) {
-            if (caseModel.getCardOnCase() != null && caseModel.getCardOnCase().getPlayer().getUid() == this.uid) {
+            if (caseModel.getCardOnCase() != null && caseModel.getCardOnCase().getPlayer().getUid().equals(this.uid)) {
                 score++;
             }
         }

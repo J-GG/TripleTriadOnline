@@ -5,7 +5,7 @@
  * When a route is invoked, the corresponding method to the key is returned.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.12.19
+ * @version 17.12.28
  */
 define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
         cardGame.gamePath + "js/controllers/SettingsController.js",
@@ -26,11 +26,10 @@ define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
                 LOGOUT: "LOGOUT",
                 SETTINGS: "SETTINGS",
                 START_GAME: "START_GAME",
+                END_GAME: "END_GAME",
                 PLAYER_PLAYS_CARD: "PLAYER_PLAYS_CARD",
-                END_TURN: "END_TURN",
                 FINAL_SCREEN: "FINAL_SCREEN",
-                AI_TURN: "AI_TURN",
-                WAIT_PLAYER: "WAIT_PLAYER"
+                PLAYER_WAIT: "PLAYER_WAIT"
             };
 
             /**
@@ -45,10 +44,9 @@ define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
                 [keys.LOGOUT]: SplashScreenController.logout,
                 [keys.SETTINGS]: SettingsController.settings,
                 [keys.START_GAME]: GameController.startGame,
+                [keys.END_GAME]: GameController.endGame,
                 [keys.PLAYER_PLAYS_CARD]: GameController.playerPlaysCard,
-                [keys.AI_TURN]: GameController.AITurn,
-                [keys.WAIT_PLAYER]: GameController.waitPlayer,
-                [keys.END_TURN]: GameController.endTurn,
+                [keys.PLAYER_WAIT]: GameController.playerWait,
                 [keys.FINAL_SCREEN]: FinalScreenController.finalScreen
             };
 

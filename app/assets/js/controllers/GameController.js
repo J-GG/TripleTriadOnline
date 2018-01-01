@@ -4,12 +4,11 @@
  * Controller for the game.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.12.27
+ * @version 17.12.31
  */
 define([cardGame.gamePath + "js/views/game/GameScript.js",
     cardGame.gamePath + "js/models/Settings.js",
-    cardGame.gamePath + "js/models/GameEngine.js",
-    cardGame.gamePath + "js/models/game/Game.js"], function (GameScript, Settings, GameEngine, Game) {
+    cardGame.gamePath + "js/models/game/Game.js"], function (GameScript, Settings, Game) {
     return (function () {
 
         /**
@@ -20,24 +19,18 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
         let TEMPLATE = cardGame.gamePath + 'js/views/game/game.html';
 
         /**
-         * The game engine.
-         * @type {GameEngine}
-         * @since 17.11.04
-         */
-        let gameEngine;
-
-        /**
          * Wait for the event from the server regarding the next card to place.
          * @since 17.12.27
          */
         function receiveCardPlayedEvent() {
             cardGame.webSocketGame.onmessage = function (event) {
-                console.log(JSON.parse(event.data));
-                cardGame.webSocketGame.onmessage = undefined;
                 let data = JSON.parse(event.data);
-                let cardPlayed = data.cardPlayed;
-                let game = new Game(data.game);
-                GameScript.playCard(game, cardPlayed.cardPlayedIndex, cardPlayed.row, cardPlayed.col);
+                if (data.cardPlayed !== undefined) {
+                    cardGame.webSocketGame.onmessage = undefined;
+                    let cardPlayed = data.cardPlayed;
+                    let game = new Game(data.game);
+                    GameScript.playCard(game, cardPlayed.playerRef, cardPlayed.cardPlayedIndex, cardPlayed.row, cardPlayed.col);
+                }
             }
         }
 
@@ -45,10 +38,10 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
 
             /**
              * Load, display the template and the script and start the game.
-             * @param player2Uid The second player's identifier
+             * @param json Json data to send to start the game ({gameRef: ###} to resume a game or {member2Ref: ###} to start a new pvp game or empty to start a new game against the AI)
              * @since 17.10.30
              */
-            startGame(player2Uid) {
+            startGame(json) {
                 let loc = window.location, webSocketUrl;
                 if (loc.protocol === "https:") {
                     webSocketUrl = "wss:";
@@ -61,8 +54,8 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
 
                 cardGame.webSocketGame.onopen = function () {
                     cardGame.webSocketGame.send(JSON.stringify({
-                        step: "init",
-                        data: {player2Ref: player2Uid === undefined ? "" : player2Uid}
+                        step: "start",
+                        data: json === undefined ? "" : json
                     }));
                 };
 
@@ -88,17 +81,17 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
             /**
              * A player plays the card at the coordinates on the board.
              * @param gameRef the identifier of the game
-             * @param card The card played
+             * @param card The identifier of the card
              * @param row The row of the case
              * @param col The column of the case
              * @since 17.11.04
              */
             playerPlaysCard(gameRef, card, row, col) {
                 cardGame.webSocketGame.send(JSON.stringify({
-                    step: "PlayerTurn",
+                    step: "playerTurn",
                     data: {
                         gameRef: gameRef,
-                        cardPlayedRef: card.getCardInDeckRef(),
+                        cardPlayedRef: card,
                         row: row,
                         col: col
                     }
@@ -107,34 +100,20 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
             },
 
             /**
-             * Make the AI plays a card.
-             * @param gameRef the identifier of the game
-             * @since 17.11.11
-             */
-            AITurn(gameRef) {
-                cardGame.webSocketGame.send(JSON.stringify({step: "AITurn", data: {gameRef: gameRef}}));
-                receiveCardPlayedEvent();
-            },
-
-            /**
              * Wait for the other player's next move
              * @since 17.12.27
              */
-            waitPlayer() {
+            playerWait() {
                 receiveCardPlayedEvent();
             },
 
             /**
-             * End the player's turn. If the game is not over, a new turn starts. Otherwise, the game ends.
-             * @since 17.11.04
+             * End the game.
+             * @since 18.01.01
              */
-            endTurn() {
-                let gameState = gameEngine.endTurn();
-                if (gameState.isGameOver()) {
-                    GameScript.gameOver(gameState);
-                } else {
-                    GameScript.newTurn(gameState);
-                }
+            endGame() {
+                cardGame.webSocketGame.close();
+                Routes.get(Routes.getKeys().FINAL_SCREEN)(true)
             }
         }
     })();

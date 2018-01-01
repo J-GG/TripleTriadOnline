@@ -1,6 +1,7 @@
 package models.game;
 
 import models.BaseModel;
+import play.Logger;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -83,15 +84,23 @@ public class BoardModel extends BaseModel {
      */
     public CaseModel getCase(final int row, final int col) {
         if (row < 0 || row > this.NB_ROWS - 1) {
-            play.Logger.debug("The given row ({}) is out of range [0-{}]", row, this.NB_ROWS - 1);
+            Logger.debug("The given row ({}) is out of range [0-{}]", row, this.NB_ROWS - 1);
             return null;
         }
         if (col < 0 || col > this.NB_COLS - 1) {
-            play.Logger.debug("The given column ({}) is out of range [0-{}]", row, this.NB_COLS - 1);
+            Logger.debug("The given column ({}) is out of range [0-{}]", row, this.NB_COLS - 1);
             return null;
         }
 
-        return this.cases.get(row * this.NB_ROWS + col);
+        for (final CaseModel aCase : this.cases) {
+            if (aCase.getRow() == row && aCase.getCol() == col) {
+                return aCase;
+            }
+        }
+
+        Logger.warn("No case could be found at the coordinates ({}, {})", row, this.NB_COLS - 1);
+
+        return null;
     }
 
     /**

@@ -4,7 +4,7 @@
  * A Game.
  * @author Jean-Gabriel Genest
  * @since 17.12.26
- * @version 17.12.26
+ * @version 17.12.31
  */
 define([cardGame.gamePath + "js/models/game/Board.js",
     cardGame.gamePath + "js/models/game/Player.js"], function (Board, Player) {
@@ -24,6 +24,8 @@ define([cardGame.gamePath + "js/models/game/Board.js",
                 this.players.push(new Player(game.players[i]));
             }
             this.enabledRules = game.enabledRules;
+            this.gameOver = game.gameOver;
+            this.winnersRef = game.winnersRef;
         }
 
         /**
@@ -89,6 +91,24 @@ define([cardGame.gamePath + "js/models/game/Board.js",
          */
         isRuleEnabled(rule) {
             return this.enabledRules.includes(rule);
+        }
+
+        /**
+         * Get whether the game is over or not.
+         * @return true if the game is over
+         * @since 17.12.31
+         */
+        isGameOver() {
+            return this.gameOver;
+        }
+
+        /**
+         * Get the list of winners' identifiers
+         * @return {*} the list of winners' identifiers if the game is over
+         * @since 18.01.01
+         */
+        getWinnersRef() {
+            return this.gameOver ? this.winnersRef : undefined;
         }
     }
 });

@@ -4,7 +4,7 @@
  * A card placed on a case.
  * @author Jean-Gabriel Genest
  * @since 17.12.26
- * @version 17.12.26
+ * @version 17.12.31
  */
 define([], function () {
     return class CardOnCase {
@@ -18,6 +18,9 @@ define([], function () {
             this.name = cardOnCase.name;
             this.cardOnCaseRef = cardOnCase.cardOnCaseRef;
             this.playerRef = cardOnCase.playerRef;
+            this.flippedByCardRef = cardOnCase.flippedByCardRef;
+            this.flippedByRule = cardOnCase.flippedByRule;
+            this.flippingStep = cardOnCase.flippingStep;
         }
 
         /**
@@ -45,6 +48,42 @@ define([], function () {
          */
         getPlayerRef() {
             return this.playerRef;
+        }
+
+        /**
+         * Get the identifier of the card by which this card has been flipped.
+         * @returns the identifier of the card by which this card has been flipped or null if it's not flipped
+         * @since 17.12.28
+         */
+        getFlippedByCardRef() {
+            return this.flippedByCardRef;
+        }
+
+        /**
+         * Get the rule which has flipped this card.
+         * @returns the rule which has flipped this card or null if it's not flipped
+         * @since 17.12.28
+         */
+        getFlippedByRule() {
+            return this.flippedByRule;
+        }
+
+        /**
+         * Get the step in the flipping chain.
+         * @returns the the step in the flipping chain or null if it's not flipped
+         * @since 17.12.28
+         */
+        getFlippingStep() {
+            return this.flippingStep;
+        }
+
+        /**
+         * Get whether the card has just been flipped or not.
+         * @returns {boolean} true if it has just been flipped
+         * @since 17.12.28
+         */
+        isFlipped() {
+            return this.flippedByCardRef !== null;
         }
     }
 });

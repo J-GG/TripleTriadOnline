@@ -4,7 +4,7 @@
  * Show and manage the game.
  * @author Jean-Gabriel Genest
  * @since 17.11.02
- * @version 17.12.27
+ * @version 17.12.31
  */
 define([cardGame.gamePath + "js/toolbox/Key.js",
         cardGame.gamePath + "js/models/Settings.js",
@@ -15,61 +15,127 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
     function (Key, Settings, Rules, Board, Sound, GameHelper) {
 
         /**
-         * Start the music.
+         * Start or resume a game.
          * @param game The game
-         * @since 17.11.05
+         * @since 17.12.31
          */
-        function initGame(game) {
+        function startGame(game) {
             Sound.play(Sound.getKeys().GAME);
-            drawCards(game);
+
+            let newGame = true;
+            for (let i = game.getBoard().getNbRows() - 1; i >= 0; i--) {
+                for (let j = game.getBoard().getNbCols() - 1; j >= 0; j--) {
+                    if (game.getBoard().getCase(i, j).getCardOnCase()) {
+                        newGame = false;
+                        break;
+                    }
+                }
+                if (!newGame) {
+                    break;
+                }
+            }
+
+            showBoard(game);
+            let animationDecksDelay = showDecks(game);
+            setTimeout(function () {
+                let animationDrawPlayerDelay = 0;
+                showScores(game);
+                if (newGame) {
+                    animationDrawPlayerDelay = drawFirstPlayerPlaying(game);
+                }
+
+                setTimeout(() => startNewTurn(game), (animationDrawPlayerDelay + .2) * 1000);
+            }, animationDecksDelay * 1000);
         }
 
         /**
-         * Draw the players' cards. If open is disabled, show only the back of the cards.
+         * Show the cards already placed on the board if the game is resumed.
          * @param game The game
-         * @since 17.11.05
+         * @since 17.12.31
          */
-        function drawCards(game) {
+        function showBoard(game) {
+            let nbCardOnBoardPerPlayer = [];
+            for (let i = game.getBoard().getNbRows() - 1; i >= 0; i--) {
+                for (let j = game.getBoard().getNbCols() - 1; j >= 0; j--) {
+                    let cardOnCase = game.getBoard().getCase(i, j).getCardOnCase();
+                    if (cardOnCase) {
+                        let playerIndex = GameHelper.getPlayerIndexFromRef(game, cardOnCase.getPlayerRef());
+                        nbCardOnBoardPerPlayer[playerIndex] = nbCardOnBoardPerPlayer[playerIndex] !== undefined ? (nbCardOnBoardPerPlayer[playerIndex] + 1) : 0;
+                        cardGame.$container.find(".card.card--player-" + (playerIndex + 1)).eq(nbCardOnBoardPerPlayer[playerIndex])
+                            .addClass("card--row-" + i + " card--col-" + j)
+                            .removeClass("card-back")
+                            .css({
+                                "background-image": "url('" + cardGame.gamePath + "img/cards/" + cardOnCase.getName().replace(/ /g, '').toLowerCase() + ".jpg')"
+                            });
+
+                    }
+                }
+            }
+        }
+
+        /**
+         * Draw the players' cards. If open is disabled, show only the back of the opponent's cards.
+         * @param game The game
+         * @return {number} the length of the animation in seconds
+         * @since 17.12.31
+         */
+        function showDecks(game) {
             /* Show player's cards */
             for (let i = game.getPlayers().length - 1; i >= 0; i--) {
                 let deck = game.getPlayer(i).getDeck();
 
                 for (let j = deck.length - 1; j >= 0; j--) {
-                    cardGame.$container.find(".card--player-" + (i + 1) + "-appearance-deck-" + j)
+                    cardGame.$container.find(".card--player-" + (i + 1)).eq($(this).length - 1 - j)
+                        .addClass("card--out-board card--deck-player-" + (i + 1) + " card--player-" + (i + 1) + "-appearance-deck-" + j)
                         .css({
                             "background-image": "url('" + cardGame.gamePath + "img/cards/" + deck[j].getName().replace(/ /g, '').toLowerCase() + ".jpg')"
                         });
-                }
 
-                /* Hide the cards and show the back if open is disabled */
-                if (!game.isRuleEnabled(Rules.getRules().OPEN)) {
-                    /* Hide the cards of the player who is not the member */
-                    if (game.getPlayer(i) === GameHelper.getPlayerOfMember(game)) {
-                        cardGame.$container.find(".card:not(.card--deck-player-" + (i + 1) + ")").each(function () {
-                            $(this).data("background", $(this).css("background-image"))
-                                .css("background-image", "")
-                                .addClass("card--back")
-                                .removeClass("card--player-1 card--player-2");
-                        });
+                    /* Hide the cards and show the back if open is disabled */
+                    if (!game.isRuleEnabled(Rules.getRules().OPEN)) {
+                        /* Hide the cards of the player who is not the member */
+                        if (game.getPlayer(i) !== GameHelper.getPlayerOfMember(game)) {
+                            cardGame.$container.find(".card--player-" + (i + 1)).eq($(this).length - 1 - j).each(function () {
+                                $(this).data("background", $(this).css("background-image"))
+                                    .css("background-image", "")
+                                    .addClass("card--back")
+                                    .removeClass("card--player-" + (i + 1));
+                            });
+                        }
                     }
                 }
             }
 
             /* After the animation of the cards*/
             let $cardAnimation = cardGame.$container.find(".card--player-2-appearance-deck-0");
-            let animationDelay = parseFloat($cardAnimation.css("animation-duration")) + parseFloat($cardAnimation.css("animation-delay"));
-            setTimeout(() => drawFirstPlayerPlaying(game), animationDelay * 1000);
+            return parseFloat($cardAnimation.css("animation-duration")) + parseFloat($cardAnimation.css("animation-delay"));
         }
 
         /**
          * Select the first player who is going to play.
-         * Show the scores and place definitively cards in decks.
          * @param game The game
+         * @return {number} the length of the animation in seconds
          * @since 17.11.05
          */
         function drawFirstPlayerPlaying(game) {
-            let playerPlaying = GameHelper.getIndexPlayerTurn(game) + 1;
+            let playerPlaying = GameHelper.getPlayerIndexFromRef(game, game.getPlayerTurnRef()) + 1;
 
+            /* Select the player */
+            Sound.play(Sound.getKeys().SELECTOR);
+            cardGame.$container.find(".player-selector")
+                .removeClass("player-selector--hide")
+                .addClass("player-selector--draw-player-" + playerPlaying);
+
+            /* After the animation of the selector*/
+            return parseFloat(cardGame.$container.find(".player-selector--draw-player-" + playerPlaying).css("animation-duration"));
+        }
+
+        /**
+         * Show the scores and place definitively cards in decks.
+         * @param game the game
+         * @since 17.12.31
+         */
+        function showScores(game) {
             for (let i = game.getPlayers().length - 1; i >= 0; i--) {
                 //Show scores
                 cardGame.$container.find(".score--player-" + (i + 1)).text(game.getPlayer(i).getScore());
@@ -80,17 +146,6 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                         .removeClass("card--out-board card--player-" + (i + 1) + "-appearance-deck-" + j);
                 }
             }
-
-            /* Show the player selector */
-            Sound.play(Sound.getKeys().SELECTOR);
-            cardGame.$container.find(".player-selector")
-                .removeClass("player-selector--hide")
-                .addClass("player-selector--draw-player-" + playerPlaying);
-            cardGame.$container.find(".board__background").append($("<div>", {class: "cursor cursor--hide"}));
-
-            /* After the animation of the selector*/
-            let animationDelay = parseFloat(cardGame.$container.find(".player-selector--draw-player-" + playerPlaying).css("animation-duration"));
-            setTimeout(() => startNewTurn(game), (animationDelay + .2) * 1000);
         }
 
         /**
@@ -99,7 +154,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
          * @since 17.11.05
          */
         function startNewTurn(game) {
-            let playerPlaying = GameHelper.getIndexPlayerTurn(game) + 1;
+            let playerPlaying = GameHelper.getPlayerIndexFromRef(game, game.getPlayerTurnRef()) + 1;
 
             //Move the selector to the player currently playing
             cardGame.$container.find(".player-selector")
@@ -112,10 +167,10 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
             } else {
                 //If the 2nd player is an AI, we ask the server to choose a card
                 if (game.getPlayer(1).isAnAI() && playerPlaying === 2) {
-                    Routes.get(Routes.getKeys().AI_TURN)(game.getGameRef());
+                    Routes.get(Routes.getKeys().PLAYER_PLAYS_CARD)(game.getGameRef());
                 } else {
                     //If the player is a human, we wait for the next move
-                    Routes.get(Routes.getKeys().WAIT_PLAYER)();
+                    Routes.get(Routes.getKeys().PLAYER_WAIT)();
                 }
             }
         }
@@ -127,11 +182,11 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
          * @since 17.11.05
          */
         function chooseCardToPlay(game, selectedCard) {
-            let playerPlaying = GameHelper.getIndexPlayerTurn(game) + 1;
+            let playerPlaying = GameHelper.getPlayerIndexFromRef(game, game.getPlayerTurnRef()) + 1;
 
             /* The default card is the top one */
             if (selectedCard === undefined) {
-                selectedCard = GameHelper.getPlayerTurn(game).getDeck().length - 1;
+                selectedCard = GameHelper.getPlayerFromRef(game, game.getPlayerTurnRef()).getDeck().length - 1;
             }
 
             //Specify the cards in the deck of the playing player
@@ -142,7 +197,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
             cardGame.$container.keydown(function (e) {
                 switch (e.which) {
                     case Key.UP:
-                        if (selectedCard + 1 < GameHelper.getPlayerTurn(game).getDeck().length) {
+                        if (selectedCard + 1 < GameHelper.getPlayerFromRef(game, game.getPlayerTurnRef()).getDeck().length) {
                             selectedCard++;
                             Sound.play(Sound.getKeys().SELECT);
                         }
@@ -198,7 +253,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
          * @since 17.11.05
          */
         function updateSelectedCard(game, selectedCard) {
-            let playerPlaying = GameHelper.getIndexPlayerTurn(game) + 1;
+            let playerPlaying = GameHelper.getPlayerIndexFromRef(game, game.getPlayerTurnRef()) + 1;
 
             //Move the cursor
             cardGame.$container.find(".cursor")
@@ -213,7 +268,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                 .addClass("card--selected-player-" + playerPlaying);
 
             //Show the name of the card
-            showCardNameMessage(GameHelper.getPlayerTurn(game).getCard(selectedCard));
+            showCardNameMessage(GameHelper.getPlayerFromRef(game, game.getPlayerTurnRef()).getCard(selectedCard));
         }
 
         /**
@@ -232,7 +287,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
          * @since 17.11.05
          */
         function chooseCase(game, selectedCard) {
-            let playerPlaying = GameHelper.getIndexPlayerTurn(game) + 1;
+            let playerPlaying = GameHelper.getPlayerIndexFromRef(game, game.getPlayerTurnRef()) + 1;
             let currentRow = 1, currentCol = 1;
             let $cursor = cardGame.$container.find(".cursor");
 
@@ -277,7 +332,10 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                             cardGame.$container.off("keydown");
 
                             Sound.play(Sound.getKeys().SELECT);
-                            Routes.get(Routes.getKeys().PLAYER_PLAYS_CARD)(game.getGameRef(), GameHelper.getPlayerTurn(game).getCard(selectedCard), currentRow, currentCol);
+                            Routes.get(Routes.getKeys().PLAYER_PLAYS_CARD)(game.getGameRef(),
+                                GameHelper.getPlayerFromRef(game, game.getPlayerTurnRef()).getCard(selectedCard).getCardInDeckRef(),
+                                currentRow,
+                                currentCol);
                         }
                         return;
                         break;
@@ -328,7 +386,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                     col = 2;
                 }
 
-                if (!game.getBoard().getCase(currentRow, currentCol).getCardOnCase()) {
+                if (!game.getBoard().getCase(row, col).getCardOnCase()) {
                     //Unbind the click on the deck
                     cardGame.$container.find(".card").removeClass("card--deck-player-playing");
                     cardGame.$container.find(".card--deck-player-" + playerPlaying).off("click");
@@ -339,7 +397,10 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                     cardGame.$container.off("keydown");
 
                     Sound.play(Sound.getKeys().SELECT);
-                    Routes.get(Routes.getKeys().PLAYER_PLAYS_CARD)(game.getGameRef(), GameHelper.getPlayerTurn(game).getCard(selectedCard), row, col);
+                    Routes.get(Routes.getKeys().PLAYER_PLAYS_CARD)(game.getGameRef(),
+                        GameHelper.getPlayerFromRef(game, game.getPlayerTurnRef()).getCard(selectedCard).getCardInDeckRef(),
+                        row,
+                        col);
                 }
             })
         }
@@ -353,7 +414,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
          */
         function showCardNameUnderCursor(game, row, col) {
             if (game.getBoard().getCase(row, col).getCardOnCase()) {
-                showCardNameMessage(game.getBoard().getCase(row, col).getCardOnCase().getCard());
+                showCardNameMessage(game.getBoard().getCase(row, col).getCardOnCase());
             } else {
                 cardGame.$container.find("#card-name-message").addClass("message--hidden").text();
             }
@@ -362,13 +423,14 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
         /**
          * Remove the card from the player's deck and lower the other cards.
          * @param game the game
+         * @param playerRef Identifier of the player who played the card
          * @param indexCardPlayed Index of the card played
          * @param row Row on the board where the card is played
          * @param col Column on the board where the card is played
          * @since 17.11.05
          */
-        function removeCardFromDeck(game, indexCardPlayed, row, col) {
-            let playerPlaying = GameHelper.getIndexPlayerTurn(game) + 1;
+        function removeCardFromDeck(game, playerRef, indexCardPlayed, row, col) {
+            let playerPlaying = GameHelper.getPlayerIndexFromRef(game, playerRef) + 1;
 
             //Remove the card from the deck
             cardGame.$container.find(".card--deck-player-" + playerPlaying + ".card--deck-" + indexCardPlayed).addClass("card--disappearance-deck-" + indexCardPlayed);
@@ -383,7 +445,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
             let animationDisappearanceDelay = parseFloat(cardGame.$container.find(".card--disappearance-deck-" + indexCardPlayed).css("animation-duration"));
 
             /* Lower the position of the cards above the one which has just been removed from the deck */
-            for (let i = indexCardPlayed + 1; i < GameHelper.getPlayerTurn(game).getDeck().length + 1; i++) {
+            for (let i = indexCardPlayed + 1; i < game.getPlayer(GameHelper.getPlayerIndexFromRef(game, playerRef)).getDeck().length + 1; i++) {
                 cardGame.$container.find(".card--deck-player-" + playerPlaying + ".card--deck-" + i)
                     .addClass("card--deck-lower-" + (i - 1))
                     .removeClass("card--deck-" + i);
@@ -399,22 +461,23 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                 })(playerPlaying, i);
             }
 
-            setTimeout(() => placeCardOnBoard(game, indexCardPlayed, row, col), animationDisappearanceDelay * 1000);
+            setTimeout(() => placeCardOnBoard(game, playerRef, indexCardPlayed, row, col), animationDisappearanceDelay * 1000);
         }
 
         /**
          * Position the card on the board.
          * @param game The game
+         * @param playerRef Identifier of the player who played the card
          * @param indexCardPlayed Index of the card played
          * @param row Row on the board where the card is played
          * @param col Column on the board where the card is played
          * @since 17.11.05
          */
-        function placeCardOnBoard(game, indexCardPlayed, row, col) {
-            let playerPlaying = GameHelper.getIndexPlayerTurn(game) + 1;
+        function placeCardOnBoard(game, playerRef, indexCardPlayed, row, col) {
+            let playerPlaying = GameHelper.getPlayerIndexFromRef(game, playerRef) + 1;
 
-            //If the player plays against the AI, it's time to reveal the card
-            if (game.getPlayer(1).isAnAI() && playerPlaying === 2) {
+            //If the rule open is disabled, it's time to reveal the card
+            if (!game.isRuleEnabled(Rules.getRules().OPEN)) {
                 cardGame.$container.find(".card.card--disappearance-deck-" + indexCardPlayed).each(function () {
                     $(this).css("background-image", $(this).data("background"))
                         .addClass("card--player-" + playerPlaying)
@@ -447,8 +510,11 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                         cardGame.$container.find(".score--player-" + (i + 1)).text(game.getPlayer(i).getScore());
                     }
 
-                    //End the turn
-                    Routes.get(Routes.getKeys().END_TURN)();
+                    if (game.isGameOver()) {
+                        gameIsOver(game);
+                    } else {
+                        startNewTurn(game)
+                    }
                 }, animationFlipDelay * 1000);
 
             }, animationAppearanceDelay * 1000);
@@ -468,15 +534,15 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                     let cardOnCase = game.getBoard().getCase(i, j).getCardOnCase();
                     if (cardOnCase !== undefined && cardOnCase.isFlipped()) {
                         //Find the last step
-                        if (cardOnCase.getFlippedStep() > steps) {
+                        if (cardOnCase.getFlippingStep() > steps) {
                             steps = cardOnCase.getFlippedStep();
                         }
                         //Count the number of rules applied without counting the simple one and by counting each step only once
-                        if (cardOnCase.getFlippedByRule() !== Rules.getRules().SIMPLE && rules[cardOnCase.getFlippedStep()] === undefined) {
+                        if (cardOnCase.getFlippedByRule() !== Rules.getRules().SIMPLE && rules[cardOnCase.getFlippingStep()] === undefined) {
                             nbRulesDisplayed++;
                         }
                         //Associate the step to the rule
-                        rules[cardOnCase.getFlippedStep()] = cardOnCase.getFlippedByRule();
+                        rules[cardOnCase.getFlippingStep()] = cardOnCase.getFlippedByRule();
                     }
                 }
             }
@@ -499,14 +565,14 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
 
                     Sound.play(Sound.getKeys().FLIP_CARD);
 
-                    for (let i = gameState.getBoard().getRows() - 1; i >= 0; i--) {
-                        for (let j = gameState.getBoard().getCols() - 1; j >= 0; j--) {
-                            let cardOnBoard = gameState.getBoard().getCardOnBoard(i, j);
-                            if (cardOnBoard !== undefined && cardOnBoard.isFlipped() && cardOnBoard.getFlippedStep() === step) {
+                    for (let i = game.getBoard().getRows() - 1; i >= 0; i--) {
+                        for (let j = game.getBoard().getCols() - 1; j >= 0; j--) {
+                            let cardOnCase = game.getBoard().getCase(i, j).getCardOnCase();
+                            if (cardOnCase !== undefined && cardOnCase.isFlipped() && cardOnCase.getFlippingStep() === step) {
                                 //X or Y rotation
-                                let position = gameState.getBoard().getRelativePositionOf(cardOnBoard, cardOnBoard.getFlippedByCard());
+                                let position = GameHelper.getRelativePositionOf(game, cardOnCase, cardOnCase.getFlippedByCard());
                                 let rotation = "Y";
-                                if (position === Board.getCardPositions().BOTTOM || position === Board.getCardPositions().TOP) {
+                                if (position === GameHelper.getCardPositions().BOTTOM || position === GameHelper.getCardPositions().TOP) {
                                     rotation = "X";
                                 }
 
@@ -520,13 +586,13 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                                 let animationFlipDelay = parseFloat(cardGame.$container.find(".card--back-" + rotation + "-row-" + i + "-col-" + j).css("animation-duration"));
 
                                 //Change the color of the card
-                                (function (i, j, cardOnBoard, gameState) {
+                                (function (i, j) {
                                     setTimeout(function () {
                                         cardGame.$container.find(".card.card--front.card--row-" + i + ".card--col-" + j)
                                             .removeClass("card--player-1 card--player-2")
-                                            .addClass("card--player-" + (gameState.getIndexPlayerPlaying() + 1));
+                                            .addClass("card--player-" + GameHelper.getPlayerIndexFromRef(game, game.getPlayerTurnRef()) + 1);
                                     }, animationFlipDelay / 2 * 1000);
-                                })(i, j, cardOnBoard, gameState);
+                                })(i, j);
 
                                 (function (i, j) {
                                     //Remove the back
@@ -557,17 +623,17 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
         /**
          * Show the game over screen with the name of the winner or a draw message.
          * Start the victory music if there is a winner.
-         * @param gameState State of the game
+         * @param game The game
          * @since 17.11.05
          */
-        function gameIsOver(gameState) {
+        function gameIsOver(game) {
 
             let text = "";
-            if (gameState.getWinner().length > 1) {
+            if (game.getWinnersRef().length > 1) {
                 text = cardGame.i18n.DRAW;
             } else {
-                if (gameState.isOnePlayerGame()) {
-                    if (gameState.getWinner()[0] === gameState.getPlayers()[0]) {
+                if (game.getPlayer(1).isAnAI()) {
+                    if (game.getWinnersRef()[0] === game.getPlayers()[0]) {
                         text = cardGame.i18n.WIN;
                         Sound.stopAllAndPlay(Sound.getKeys().VICTORY);
                     } else {
@@ -575,7 +641,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                     }
                 }
                 else {
-                    text = gameState.getWinner()[0].getName() + " " + cardGame.i18n.WINS;
+                    text = GameHelper.getPlayerFromRef(game, game.getWinnersRef()[0]).getUsername() + " " + cardGame.i18n.WINS;
                     Sound.stopAllAndPlay(Sound.getKeys().VICTORY);
                 }
             }
@@ -587,7 +653,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
             cardGame.$container.keydown(function (e) {
                 switch (e.which) {
                     case Key.ENTER:
-                        gameDisappear(gameState);
+                        gameDisappear(game);
                         break;
 
                     default:
@@ -597,7 +663,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
 
             cardGame.$container.find(".board__background").addClass("board__background--pointer");
             cardGame.$container.find(".board__background").on("click", function () {
-                gameDisappear(gameState);
+                gameDisappear(game);
             })
         }
 
@@ -611,7 +677,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
             cardGame.$container.find(".board__background").removeClass("board__background--pointer");
             cardGame.$container.off("keydown");
 
-            cardGame.$container.find(".board__background").fadeOut("slow", () => Routes.get(Routes.getKeys().FINAL_SCREEN)(game.isOnePlayerGame()));
+            cardGame.$container.find(".board__background").fadeOut("slow", () => Routes.get(Routes.getKeys().END_GAME)());
         }
 
         return {
@@ -621,35 +687,20 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
              * @since 17.11.02
              */
             startGame(game) {
-                initGame(game);
+                startGame(game);
             },
 
             /**
              * Play the card on the board.
-             * @param gameState State of the game
+             * @param game The game
+             * @param playerRef Identifier of the player who played the card
              * @param indexCard Index of the card in the deck
              * @param row Row of the case where the card is played
              * @param col Column of the case where the card is played
              * @since 17.11.05
              */
-            playCard(gameState, indexCard, row, col) {
-                removeCardFromDeck(gameState, indexCard, row, col);
-            },
-
-            /**
-             * Start a new turn.
-             * @param gameState State of the game
-             */
-            newTurn(gameState) {
-                startNewTurn(gameState);
-            },
-
-            /**
-             * Show the game over screen.
-             * @param gameState State of the game
-             */
-            gameOver(gameState) {
-                gameIsOver(gameState);
+            playCard(game, playerRef, indexCard, row, col) {
+                removeCardFromDeck(game, playerRef, indexCard, row, col);
             }
         };
     });

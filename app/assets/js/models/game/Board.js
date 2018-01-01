@@ -63,11 +63,11 @@ define([cardGame.gamePath + "js/models/game/Case.js"], function (Case) {
          */
         getCase(row, col) {
             if (row < 0 || row >= this.nbRows) {
-                logger.warning("The row should be between 0 and " + (this.rows - 1) + " but [row: " + row + "] found");
+                logger.warning("The row should be between 0 and " + (this.nbRows - 1) + " but [row: " + row + "] found");
                 return;
             }
             if (col < 0 || col >= this.nbCols) {
-                logger.warning("The column should be between 0 and " + (this.cols - 1) + " but [col: " + col + "] found");
+                logger.warning("The column should be between 0 and " + (this.nbCols - 1) + " but [col: " + col + "] found");
                 return;
             }
 

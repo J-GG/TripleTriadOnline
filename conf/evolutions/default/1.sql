@@ -68,6 +68,7 @@ create table game (
   player_turn_uid               uuid,
   difficulty                    varchar(6) not null,
   enabled_rules                 json not null,
+  game_over                     boolean default false not null,
   constraint ck_game_difficulty check ( difficulty in ('EASY','HARD','NORMAL')),
   constraint uq_game_board_uid unique (board_uid),
   constraint pk_game primary key (uid)

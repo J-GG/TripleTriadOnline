@@ -133,7 +133,7 @@ public class CardOnCaseModel extends CardInGameModel {
      * @return the step in the flipping chain or null if it's not flipped
      * @since 17.12.24
      */
-    public int getFlippingStep() {
+    public Integer getFlippingStep() {
         return this.flippingStep;
     }
 

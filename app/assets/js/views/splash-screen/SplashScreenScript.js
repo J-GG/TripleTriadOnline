@@ -4,7 +4,7 @@
  * Manage the main menu.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.12.19
+ * @version 17.12.31
  */
 define([cardGame.gamePath + "js/views/common/Common.js",
     cardGame.gamePath + "js/toolbox/Key.js",
@@ -27,7 +27,7 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                             Routes.get(Routes.getKeys().START_GAME)();
                             break;
                         case 2:
-                            Routes.get(Routes.getKeys().START_GAME)();
+                            Routes.get(Routes.getKeys().START_GAME)({member2Ref: "34dba0d7-2a41-45cc-89c5-e50744147b29"});
                             break;
                         case 3:
                             Routes.get(Routes.getKeys().SETTINGS)();

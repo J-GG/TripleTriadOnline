@@ -73,7 +73,7 @@ public class CardModel extends BaseModel {
      *
      * @since 17.12.23
      */
-    public static final int MAX_LEVEL = 1;
+    public static final int MAX_LEVEL = 2;
 
     /**
      * The list of members owning this card.
