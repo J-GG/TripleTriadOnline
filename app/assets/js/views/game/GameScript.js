@@ -680,6 +680,20 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
             cardGame.$container.find(".board__background").fadeOut("slow", () => Routes.get(Routes.getKeys().END_GAME)());
         }
 
+        /**
+         * Notify that the given player joined the game.
+         * @param game the game
+         * @param playerRef the player who joined the game
+         * @since 18.01.01
+         */
+        function playerJoinedGame(game, playerRef) {
+            let playerIndex = GameHelper.getPlayerIndexFromRef(game, playerRef);
+
+            cardGame.$container.find(".player-name__avatar--player-" + (playerIndex + 1))
+                .removeClass("player-name__avatar--logged-out")
+                .addClass("player-name__avatar--logged-in");
+        }
+
         return {
             /**
              * Start the game (draw cards and the first player playing) and let the first player chooses a card to play.
@@ -701,6 +715,16 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
              */
             playCard(game, playerRef, indexCard, row, col) {
                 removeCardFromDeck(game, playerRef, indexCard, row, col);
+            },
+
+            /**
+             * Notify that the given player joined the game.
+             * @param game the game
+             * @param playerRef the player who joined the game
+             * @since 18.01.01
+             */
+            playerJoinedGame(game, playerRef) {
+                playerJoinedGame(game, playerRef);
             }
         };
     });

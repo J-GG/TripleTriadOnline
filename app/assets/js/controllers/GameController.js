@@ -7,8 +7,8 @@
  * @version 17.12.31
  */
 define([cardGame.gamePath + "js/views/game/GameScript.js",
-    cardGame.gamePath + "js/models/Settings.js",
-    cardGame.gamePath + "js/models/game/Game.js"], function (GameScript, Settings, Game) {
+    cardGame.gamePath + "js/toolbox/GameHelper.js",
+    cardGame.gamePath + "js/models/game/Game.js"], function (GameScript, GameHelper, Game) {
     return (function () {
 
         /**
@@ -22,14 +22,35 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
          * Wait for the event from the server regarding the next card to place.
          * @since 17.12.27
          */
-        function receiveCardPlayedEvent() {
+        function onMessage(messageToListen) {
             cardGame.webSocketGame.onmessage = function (event) {
-                let data = JSON.parse(event.data);
-                if (data.cardPlayed !== undefined) {
-                    cardGame.webSocketGame.onmessage = undefined;
-                    let cardPlayed = data.cardPlayed;
-                    let game = new Game(data.game);
-                    GameScript.playCard(game, cardPlayed.playerRef, cardPlayed.cardPlayedIndex, cardPlayed.row, cardPlayed.col);
+                let result = JSON.parse(event.data);
+                if (messageToListen === "start" && result.message === "start") {
+                    let game = new Game(result.data.game);
+                    let player2IsAI = game.getPlayer(1).isAnAI();
+                    let data = {
+                        player1: game.getPlayers()[0].getUsername(),
+                        player2: player2IsAI ? undefined : game.getPlayers()[1].getUsername(),
+                        onePlayer: player2IsAI,
+                        gamePath: cardGame.gamePath
+                    };
+                    result.data.loggedInPlayersRef.push(GameHelper.getPlayerOfMember(game).getPlayerRef());// TODO Receive one's player and remove this line
+                    for (let i = 0; i < result.data.loggedInPlayersRef.length; i++) {
+                        data["player" + (GameHelper.getPlayerIndexFromRef(game, result.data.loggedInPlayersRef[i]) + 1) + "LoggedIn"] = true;
+                    }
+
+                    $.get(TEMPLATE, function (source) {
+                        let template = Handlebars.compile(source);
+                        cardGame.$container.find(".board__game-area").html(template(data));
+                        GameScript.startGame(game,);
+                    });
+                } else if (messageToListen === "playerTurn" && result.message === "playerTurn") {
+                    let cardPlayed = result.data.cardPlayed;
+                    GameScript.playCard(new Game(result.data.game), cardPlayed.playerRef, cardPlayed.cardPlayedIndex, cardPlayed.row, cardPlayed.col);
+                } else if (result.message === "login") {
+                    GameScript.playerJoinedGame(new Game(result.data.game), result.data.playerRef);
+                } else if (result.message === "logout") {
+
                 }
             }
         }
@@ -54,28 +75,12 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
 
                 cardGame.webSocketGame.onopen = function () {
                     cardGame.webSocketGame.send(JSON.stringify({
-                        step: "start",
+                        message: "start",
                         data: json === undefined ? "" : json
                     }));
                 };
 
-                cardGame.webSocketGame.onmessage = function (event) {
-                    cardGame.webSocketGame.onmessage = undefined;
-                    let game = new Game(JSON.parse(event.data).game);
-                    let player2IsAI = game.getPlayer(1).isAnAI();
-                    let data = {
-                        player1: game.getPlayers()[0].getUsername(),
-                        player2: player2IsAI ? undefined : game.getPlayers()[1].getUsername(),
-                        onePlayer: player2IsAI,
-                        gamePath: cardGame.gamePath
-                    };
-
-                    $.get(TEMPLATE, function (source) {
-                        let template = Handlebars.compile(source);
-                        cardGame.$container.find(".board__game-area").html(template(data));
-                        GameScript.startGame(game);
-                    });
-                };
+                onMessage("start");
             },
 
             /**
@@ -88,7 +93,7 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
              */
             playerPlaysCard(gameRef, card, row, col) {
                 cardGame.webSocketGame.send(JSON.stringify({
-                    step: "playerTurn",
+                    message: "playerTurn",
                     data: {
                         gameRef: gameRef,
                         cardPlayedRef: card,
@@ -96,7 +101,7 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
                         col: col
                     }
                 }));
-                receiveCardPlayedEvent();
+                onMessage("playerTurn");
             },
 
             /**
@@ -104,7 +109,7 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
              * @since 17.12.27
              */
             playerWait() {
-                receiveCardPlayedEvent();
+                onMessage("playerTurn");
             },
 
             /**

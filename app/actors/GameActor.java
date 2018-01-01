@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedAbstractActor;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.entity.game.GameEntity;
 import models.game.*;
@@ -18,7 +19,7 @@ import java.util.*;
  * GameActor.
  *
  * @author Jean-Gabriel Genest
- * @version 17.12.31
+ * @version 18.01.01
  * @since 17.12.25
  */
 public class GameActor extends UntypedAbstractActor {
@@ -31,11 +32,11 @@ public class GameActor extends UntypedAbstractActor {
     private final ActorRef out;
 
     /**
-     * Identifier of the member.
+     * The member.
      *
-     * @since 17.12.26
+     * @since 18.01.01
      */
-    private final UUID memberUid;
+    private final MemberModel member;
 
     /**
      * Association between each member and their actor.
@@ -65,47 +66,36 @@ public class GameActor extends UntypedAbstractActor {
      */
     public GameActor(final ActorRef out, final UUID memberUid) {
         this.out = out;
-        this.memberUid = memberUid;
+        this.member = MemberModel.find.query()
+                .where()
+                .eq("uid", memberUid)
+                .findUnique();
+
+        if (this.member == null) {
+            Logger.error("Couldn't find the member [{}]", memberUid);
+            throw new RuntimeException("404");
+        }
     }
 
     @Override
     public void onReceive(final Object message) throws Throwable {
         final JsonNode jsonNode = Json.parse(message.toString());
-        JsonNode result = null;
-        if (jsonNode.has("step") && jsonNode.has("data")) {
+        if (jsonNode.has("message") && jsonNode.has("data")) {
             final JsonNode jsonData = jsonNode.get("data");
-            switch (jsonNode.get("step").asText()) {
+            switch (jsonNode.get("message").asText()) {
                 case "start":
-                    result = start(jsonData);
+                    start(jsonData);
                     break;
                 case "playerTurn":
-                    result = playerTurn(jsonData);
+                    playerTurn(jsonData);
                     break;
-            }
-        }
-
-        if (result == null) {
-            Logger.error("The actor couldn't find what to do");
-            throw new Exception("404");
-        }
-
-        final GameModel game = GameModel.find.query()
-                .where()
-                .eq("uid", result.get("game").get("gameRef").asText())
-                .findUnique();
-
-        connections.put(this.memberUid, this.out);
-        final List<PlayerModel> players = game.getPlayers();
-        for (final PlayerModel player : players) {
-            if (player.getMember() != null && connections.containsKey(player.getMember().getUid())) {
-                connections.get(player.getMember().getUid()).tell(result.toString(), self());
             }
         }
     }
 
     @Override
     public void postStop() throws Exception {
-        connections.remove(this.memberUid);
+        connections.remove(this.member.getUid());
         super.postStop();
     }
 
@@ -113,20 +103,9 @@ public class GameActor extends UntypedAbstractActor {
      * Start or resume a game.
      *
      * @param jsonData the data from the client
-     * @return a Json with the game. The format is: {gameRef: ###} to resume a game or {member2Ref: ###} to start a new pvp game or empty to start a new game against the AI
      * @since 17.12.26
      */
-    private JsonNode start(final JsonNode jsonData) {
-        final MemberModel member = MemberModel.find.query()
-                .where()
-                .eq("uid", this.memberUid)
-                .findUnique();
-
-        if (member == null) {
-            Logger.error("Couldn't find the member [{}]", this.memberUid);
-            throw new RuntimeException("404");
-        }
-
+    private void start(final JsonNode jsonData) {
         final GameModel game;
         if (jsonData.has("gameRef")) {
             game = GameModel.find.query()
@@ -138,13 +117,18 @@ public class GameActor extends UntypedAbstractActor {
                 Logger.error("Couldn't find the game [{}]", jsonData.get("gameRef").asText());
                 throw new RuntimeException("404");
             }
+
+            if (game.getPlayers().stream().filter(playerModel -> playerModel.getMember() != null).noneMatch(playerModel -> this.member.getUid().equals(playerModel.getMember().getUid()))) {
+                Logger.error("The member [{}] is not a player of the game [{}]", this.member.getUid(), game.getUid());
+                throw new RuntimeException("403");
+            }
         } else {
             MemberModel member2 = null;
             if (jsonData.has("member2Ref")) {
                 final JsonNode member2Ref = jsonData.get("member2Ref");
                 if (member2Ref != null && !member2Ref.textValue().isEmpty()) {
-                    if (member2Ref.asText().equals(member.getUid().toString())) {
-                        Logger.error("Member [{}] is trying to play against him/herself", member.getUid());
+                    if (member2Ref.asText().equals(this.member.getUid().toString())) {
+                        Logger.error("Member [{}] is trying to play against him/herself", this.member.getUid());
                         throw new RuntimeException("404");
                     }
 
@@ -153,18 +137,18 @@ public class GameActor extends UntypedAbstractActor {
                             .eq("uid", member2Ref.asText())
                             .findUnique();
                 }
-                Logger.info("Member [{}] started a new game against [{}]", this.memberUid, member2 != null ? member2.getUid() : "AI");
+                Logger.info("Member [{}] started a new game against [{}]", this.member.getUid(), member2 != null ? member2.getUid() : "AI");
             }
 
-            final PlayerModel player1 = new PlayerModel(member);
+            final PlayerModel player1 = new PlayerModel(this.member);
             final PlayerModel player2 = new PlayerModel(member2);
             player1.setDeck(CardHelper.getRandomCards(5));
             player2.setDeck(CardHelper.getRandomCards(5));
             game = new GameModel();
             game.addPlayer(player1);
             game.addPlayer(player2);
-            game.setDifficulty(member.getMemberSettings().getDefaultGameSettings().getDifficulty());
-            game.setEnabledRules(member.getMemberSettings().getDefaultGameSettings().getEnabledRules());
+            game.setDifficulty(this.member.getMemberSettings().getDefaultGameSettings().getDifficulty());
+            game.setEnabledRules(this.member.getMemberSettings().getDefaultGameSettings().getEnabledRules());
 
             final Random randomGenerator = new Random();
             final int randomNumber = randomGenerator.nextInt(game.getPlayers().size());
@@ -172,10 +156,34 @@ public class GameActor extends UntypedAbstractActor {
             game.save();
         }
 
-        final ObjectNode result = Json.newObject();
-        result.set("game", Json.toJson(new GameEntity(game)));
+        final ObjectNode startResult = Json.newObject();
+        final ObjectNode data = Json.newObject();
+        final ArrayNode loggedInPlayers = Json.newArray();
+        connections.keySet().forEach(uuid -> loggedInPlayers.add(uuid.toString()));
+        data.set("game", Json.toJson(new GameEntity(game)));
+        data.set("loggedInPlayersRef", loggedInPlayers);
+        startResult.set("data", data);
+        startResult.put("message", "start");
 
-        return result;
+        this.out.tell(startResult.toString(), self());
+
+        final ObjectNode loginResult = Json.newObject();
+        final PlayerModel playerLoggedIn = game.getPlayers().stream()
+                .filter(playerModel -> playerModel.getMember() != null && playerModel.getMember().getUid().equals(this.member.getUid()))
+                .findFirst()
+                .orElseGet(null);
+        data.put("playerRef", playerLoggedIn.getUid().toString());
+        loginResult.set("data", data);
+        loginResult.put("message", "login");
+
+        final List<PlayerModel> players = game.getPlayers();
+        for (final PlayerModel player : players) {
+            if (player.getMember() != null && connections.containsKey(player.getMember().getUid())) {
+                connections.get(player.getMember().getUid()).tell(loginResult.toString(), self());
+            }
+        }
+
+        connections.put(this.member.getUid(), this.out);
     }
 
     /**
@@ -183,32 +191,26 @@ public class GameActor extends UntypedAbstractActor {
      * If the player is a human, play the card he/she has chosen. If the the player is an AI, a card is chosen.
      *
      * @param jsonData the data from the client
-     * @return a Json with the game and the card played
      * @since 17.12.31
      */
-    private JsonNode playerTurn(final JsonNode jsonData) {
+    private void playerTurn(final JsonNode jsonData) {
         if (!jsonData.has("gameRef")) {
             Logger.error("GameRef is missing");
             throw new RuntimeException("404");
         }
-
-        final MemberModel member = MemberModel.find.query()
-                .where()
-                .eq("uid", this.memberUid)
-                .findUnique();
 
         final GameModel game = GameModel.find.query()
                 .where()
                 .eq("uid", jsonData.get("gameRef").asText())
                 .findUnique();
 
-        if (member == null || game == null) {
-            Logger.error("Couldn't find the member [{}] or the game [{}]", this.memberUid, jsonData.get("gameRef").asText());
+        if (game == null) {
+            Logger.error("Couldn't find the game [{}]", jsonData.get("gameRef").asText());
             throw new RuntimeException("404");
         }
 
-        if (!member.getPlayers().contains(game.getPlayers().get(0)) && !member.getPlayers().contains(game.getPlayers().get(1))) {
-            Logger.error("The member [{}] is not a player of the game [{}]", member.getUid(), game.getUid());
+        if (game.getPlayers().stream().noneMatch(playerModel -> this.member.getPlayers().contains(playerModel))) {
+            Logger.error("The member [{}] is not a player of the game [{}]", this.member.getUid(), game.getUid());
             throw new RuntimeException("403");
         }
 
@@ -241,8 +243,8 @@ public class GameActor extends UntypedAbstractActor {
             }
 
             player = cardInDeck.getPlayer();
-            if (!game.getPlayers().contains(player) || !member.getPlayers().contains(player)) {
-                Logger.error("The player [{}] doesn't match belong to the game [{}] nor the member [{}]", player.getUid(), game.getUid(), member.getUid());
+            if (!game.getPlayers().contains(player) || !this.member.getPlayers().contains(player)) {
+                Logger.error("The player [{}] doesn't match belong to the game [{}] nor the member [{}]", player.getUid(), game.getUid(), this.member.getUid());
                 throw new RuntimeException("403");
             }
 
@@ -287,14 +289,22 @@ public class GameActor extends UntypedAbstractActor {
         game.save();
 
         final ObjectNode result = Json.newObject();
-        result.set("game", Json.toJson(new GameEntity(game)));
+        final ObjectNode data = Json.newObject();
+        data.set("game", Json.toJson(new GameEntity(game)));
         final ObjectNode cardPlayedNode = Json.newObject();
         cardPlayedNode.put("cardPlayedIndex", cardInDeckIndex);
         cardPlayedNode.put("playerRef", player.getUid().toString());
         cardPlayedNode.put("row", row);
         cardPlayedNode.put("col", col);
-        result.set("cardPlayed", cardPlayedNode);
+        data.set("cardPlayed", cardPlayedNode);
+        result.set("data", data);
+        result.put("message", "playerTurn");
 
-        return result;
+        final List<PlayerModel> players = game.getPlayers();
+        for (final PlayerModel playerModel : players) {
+            if (player.getMember() != null && connections.containsKey(playerModel.getMember().getUid())) {
+                connections.get(playerModel.getMember().getUid()).tell(result.toString(), self());
+            }
+        }
     }
 }

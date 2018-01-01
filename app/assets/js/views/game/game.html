@@ -1,11 +1,15 @@
 <div class="board__background board__background--game">
     <div class="player-name__box player-name__box--player-1">
         <div class="player-name__text">{{player1}}</div>
+        <img class="player-name__avatar player-name__avatar--player-1 {{#if player1LoggedIn}}player-name__avatar--logged-in{{/if}} {{#unless player1LoggedIn}}player-name__avatar--logged-out{{/unless}}"
+             src="/assets/img/avatar-unknown.svg"/>
     </div>
 
     {{#unless onePlayer}}
     <div class="player-name__box player-name__box--player-2">
         <div class="player-name__text">{{player2}}</div>
+        <img class="player-name__avatar player-name__avatar--player-2 {{#if player2LoggedIn}}player-name__avatar--logged-in{{/if}} {{#unless player2LoggedIn}}player-name__avatar--logged-out{{/unless}}"
+             src="/assets/img/avatar-unknown.svg"/>
     </div>
     {{/unless}}
 
