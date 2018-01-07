@@ -152,11 +152,19 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
 
             /**
              * End the game.
+             * @param game the game
              * @since 18.01.01
              */
-            endGame() {
+            endGame(game) {
                 cardGame.webSocketGame.close();
-                Routes.get(Routes.getKeys().FINAL_SCREEN)(true)
+                let member2Ref;
+                for (let i = game.getPlayers().length - 1; i >= 0; i--) {
+                    if (game.getPlayer(i).getMemberRef() !== cardGame.member.getMemberRef()) {
+                        member2Ref = game.getPlayer(i).getMemberRef();
+                    }
+                }
+                let data = member2Ref ? {member2Ref: member2Ref} : "";
+                Routes.get(Routes.getKeys().FINAL_SCREEN)(data);
             }
         }
     })();

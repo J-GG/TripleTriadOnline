@@ -533,7 +533,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                     if (cardOnCase !== undefined && cardOnCase.isFlipped()) {
                         //Find the last step
                         if (cardOnCase.getFlippingStep() > steps) {
-                            steps = cardOnCase.getFlippedStep();
+                            steps = cardOnCase.getFlippingStep();
                         }
                         //Count the number of rules applied without counting the simple one and by counting each step only once
                         if (cardOnCase.getFlippedByRule() !== Rules.getRules().SIMPLE && rules[cardOnCase.getFlippingStep()] === undefined) {
@@ -563,12 +563,12 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
 
                     Sound.play(Sound.getKeys().FLIP_CARD);
 
-                    for (let i = game.getBoard().getRows() - 1; i >= 0; i--) {
-                        for (let j = game.getBoard().getCols() - 1; j >= 0; j--) {
+                    for (let i = game.getBoard().getNbRows() - 1; i >= 0; i--) {
+                        for (let j = game.getBoard().getNbCols() - 1; j >= 0; j--) {
                             let cardOnCase = game.getBoard().getCase(i, j).getCardOnCase();
                             if (cardOnCase !== undefined && cardOnCase.isFlipped() && cardOnCase.getFlippingStep() === step) {
                                 //X or Y rotation
-                                let position = GameHelper.getRelativePositionOf(game, cardOnCase, cardOnCase.getFlippedByCard());
+                                let position = GameHelper.getRelativePositionOf(game, cardOnCase.getCardOnCaseRef(), cardOnCase.getFlippedByCardRef());
                                 let rotation = "Y";
                                 if (position === GameHelper.getCardPositions().BOTTOM || position === GameHelper.getCardPositions().TOP) {
                                     rotation = "X";
@@ -588,7 +588,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                                     setTimeout(function () {
                                         cardGame.$container.find(".card.card--front.card--row-" + i + ".card--col-" + j)
                                             .removeClass("card--player-1 card--player-2")
-                                            .addClass("card--player-" + GameHelper.getPlayerIndexFromRef(game, game.getPlayerTurnRef()) + 1);
+                                            .addClass("card--player-" + (GameHelper.getPlayerIndexFromRef(game, cardOnCase.getPlayerRef()) + 1));
                                     }, animationFlipDelay / 2 * 1000);
                                 })(i, j);
 
@@ -630,17 +630,11 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
             if (game.getWinnersRef().length > 1) {
                 text = cardGame.i18n.DRAW;
             } else {
-                if (game.getPlayer(1).isAnAI()) {
-                    if (game.getWinnersRef()[0] === game.getPlayers()[0]) {
-                        text = cardGame.i18n.WIN;
-                        Sound.stopAllAndPlay(Sound.getKeys().VICTORY);
-                    } else {
-                        text = cardGame.i18n.LOSE;
-                    }
-                }
-                else {
-                    text = GameHelper.getPlayerFromRef(game, game.getWinnersRef()[0]).getUsername() + " " + cardGame.i18n.WINS;
+                if (game.getWinnersRef()[0] === GameHelper.getPlayerOfMember(game).getPlayerRef()) {
+                    text = cardGame.i18n.WIN;
                     Sound.stopAllAndPlay(Sound.getKeys().VICTORY);
+                } else {
+                    text = cardGame.i18n.LOSE;
                 }
             }
             cardGame.$container.find(".board__background").append($("<div>", {
@@ -675,7 +669,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
             cardGame.$container.find(".board__background").removeClass("board__background--pointer");
             cardGame.$container.off("keydown");
 
-            cardGame.$container.find(".board__background").fadeOut("slow", () => Routes.get(Routes.getKeys().END_GAME)());
+            cardGame.$container.find(".board__background").fadeOut("slow", () => Routes.get(Routes.getKeys().END_GAME)(game));
         }
 
         /**

@@ -10,40 +10,36 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * SimpleRule.
+ * SameRule.
  *
  * @author Jean-Gabriel Genest
  * @version 18.01.06
- * @since 18.01.01
+ * @since 18.01.06
  */
-public class SimpleRule extends ARule {
+public class SameRule extends ARule {
 
     /**
-     * Create a new Simple Rule.
+     * The number of cards having the same same facing value.
+     *
+     * @since 18.01.06
+     */
+    private int nbOfSameValues;
+
+    /**
+     * Create a new Same Rule.
      *
      * @param game      the game
      * @param step      the step in the flipping chain
      * @param caseModel the case triggering the rule
      * @since 18.01.06
      */
-    public SimpleRule(final GameModel game, final int step, final CaseModel caseModel) {
-        super(game, RuleEnum.SIMPLE, step, caseModel);
-    }
-
-    /**
-     * Create a new Simple Rule with a custom rule value.
-     *
-     * @param game      the game
-     * @param step      the step in the flipping chain
-     * @param caseModel the case triggering the rule
-     * @since 18.01.06
-     */
-    public SimpleRule(final GameModel game, final int step, final CaseModel caseModel, final RuleEnum rule) {
-        super(game, rule, step, caseModel);
+    public SameRule(final GameModel game, final int step, final CaseModel caseModel) {
+        super(game, RuleEnum.SAME, step, caseModel);
     }
 
     @Override
     public List<CardOnCaseModel> test() {
+        this.nbOfSameValues = 0;
         final List<CardOnCaseModel> flippedCards = new ArrayList<>();
 
         if (getAboveCard() != null) {
@@ -57,6 +53,10 @@ public class SimpleRule extends ARule {
         }
         if (getRightCard() != null) {
             flippedCards.add(compare(this.cardOnCase.getCard().getRightValue(), getRightCard(), getRightCard().getCard().getLeftValue()));
+        }
+
+        if (this.nbOfSameValues < 2) {
+            flippedCards.clear();
         }
 
         flippedCards.removeIf(Objects::isNull);
@@ -74,11 +74,13 @@ public class SimpleRule extends ARule {
      * @since 18.01.06
      */
     private CardOnCaseModel compare(final Integer cardValue, final CardOnCaseModel cardToCompare, final Integer cardToCompareValue) {
-        if (!cardToCompare.getPlayer().getUid().equals(this.cardOnCase.getPlayer().getUid()) && cardToCompareValue < cardValue) {
-            return cardToCompare;
+        if (cardToCompareValue.equals(cardValue)) {
+            this.nbOfSameValues++;
+            if (!cardToCompare.getPlayer().getUid().equals(this.cardOnCase.getPlayer().getUid())) {
+                return cardToCompare;
+            }
         }
 
         return null;
     }
-
 }

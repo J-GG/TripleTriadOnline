@@ -122,4 +122,17 @@ public class BoardModel extends BaseModel {
     public Integer getNbCols() {
         return this.NB_COLS;
     }
+
+    /**
+     * Unflip all the cards on the board.
+     *
+     * @since 18.01.06
+     */
+    public void unflipCards() {
+        for (final CaseModel caseModel : this.cases) {
+            if (caseModel.getCardOnCase() != null) {
+                caseModel.getCardOnCase().unflip();
+            }
+        }
+    }
 }

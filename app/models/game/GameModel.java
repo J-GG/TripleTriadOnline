@@ -242,7 +242,7 @@ public class GameModel extends BaseModel {
     public List<PlayerModel> getWinners() {
         List<PlayerModel> winners = new ArrayList<>();
         if (this.gameOver) {
-            final Integer maxScore = this.players.stream().map(PlayerModel::getScore).max((s1, s2) -> s1 > s2 ? s1 : s2).orElse(0);
+            final Integer maxScore = this.players.stream().map(PlayerModel::getScore).max(Integer::compare).orElse(0);
             winners = this.players.stream().filter(playerModel -> playerModel.getScore() == maxScore).collect(Collectors.toList());
         }
         return winners;

@@ -38,7 +38,6 @@ define([cardGame.gamePath + "js/lang/i18n_en.js"], function (i18nDefault) {
         COMBO: "Combo",
         COMBO_DESCRIPTION: "Toutes les cartes retournées par Plus ou Same peuvent retourner les cartes adjacentes suivant la rège simple",
         MENU: "Menu",
-        WINS: "a gagné!",
         DRAW: "Match nul",
         WIN: "Gagné!",
         LOSE: "Perdu...",

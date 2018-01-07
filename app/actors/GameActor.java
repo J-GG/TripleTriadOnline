@@ -6,6 +6,9 @@ import akka.actor.UntypedAbstractActor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.ebean.Query;
+import io.ebean.RawSql;
+import io.ebean.RawSqlBuilder;
 import models.entity.game.GameEntity;
 import models.game.*;
 import models.membership.MemberModel;
@@ -172,20 +175,52 @@ public class GameActor extends UntypedAbstractActor {
                 Logger.info("Member [{}] started a new game against [{}]", this.member.getUid(), member2 != null ? member2.getUid() : "AI");
             }
 
-            this.player = new PlayerModel(this.member);
-            final PlayerModel player2 = new PlayerModel(member2);
-            this.player.setDeck(CardHelper.getRandomCards(5));
-            player2.setDeck(CardHelper.getRandomCards(5));
-            this.game = new GameModel();
-            this.game.addPlayer(this.player);
-            this.game.addPlayer(player2);
-            this.game.setDifficulty(this.member.getMemberSettings().getDefaultGameSettings().getDifficulty());
-            this.game.setEnabledRules(this.member.getMemberSettings().getDefaultGameSettings().getEnabledRules());
+            String sql = "SELECT game.uid FROM game "
+                    + "INNER JOIN player as p1 ON game.uid = p1.game_uid "
+                    + "INNER JOIN player as p2 ON game.uid = p2.game_uid "
+                    + "WHERE game_over = false "
+                    + "AND p1.member_uid = :member ";
+            if (member2 != null) {
+                sql += "AND p2.member_uid= :member2";
+            } else {
+                sql += "AND p2.member_uid IS NULL";
+            }
 
-            final Random randomGenerator = new Random();
-            final int randomNumber = randomGenerator.nextInt(this.game.getPlayers().size());
-            this.game.setPlayerTurn(this.game.getPlayers().get(randomNumber));
-            this.game.save();
+            final RawSql rawSql = RawSqlBuilder
+                    .parse(sql)
+                    .columnMapping("game.uid", "uid")
+                    .create();
+
+            final Query<GameModel> query = GameModel.find.query()
+                    .setRawSql(rawSql)
+                    .setParameter("member", this.member.getUid());
+            if (member2 != null) {
+                query.setParameter("member2", member2.getUid());
+            }
+            final GameModel existingGame = query.findUnique();
+
+            if (existingGame != null) {
+                this.game = existingGame;
+                this.player = this.game.getPlayers().stream()
+                        .filter(playerModel -> playerModel.getMember() != null && this.member.getUid().equals(playerModel.getMember().getUid()))
+                        .findFirst()
+                        .orElse(null);
+            } else {
+                this.player = new PlayerModel(this.member);
+                final PlayerModel player2 = new PlayerModel(member2);
+                this.player.setDeck(CardHelper.getRandomCards(5));
+                player2.setDeck(CardHelper.getRandomCards(5));
+                this.game = new GameModel();
+                this.game.addPlayer(this.player);
+                this.game.addPlayer(player2);
+                this.game.setDifficulty(this.member.getMemberSettings().getDefaultGameSettings().getDifficulty());
+                this.game.setEnabledRules(this.member.getMemberSettings().getDefaultGameSettings().getEnabledRules());
+
+                final Random randomGenerator = new Random();
+                final int randomNumber = randomGenerator.nextInt(this.game.getPlayers().size());
+                this.game.setPlayerTurn(this.game.getPlayers().get(randomNumber));
+                this.game.save();
+            }
         }
         connections.put(this.player.getUid(), this.out);
 
@@ -305,7 +340,7 @@ public class GameActor extends UntypedAbstractActor {
         cardInDeck.delete();
 
         this.game.getBoard().getCase(row, col).setCardOnCase(new CardOnCaseModel(cardInDeck));
-        RulesFactory.applyRules(this.game, row, col);
+        RulesFactory.applyRules(this.game, this.game.getBoard().getCase(row, col));
         this.game.setPlayerTurn(this.game.getNextPlayer(playerTurn));
 
         final boolean gameIsOver = this.game.getBoard().getCases().stream().noneMatch(caseModel -> caseModel.getCardOnCase() == null);
@@ -331,5 +366,7 @@ public class GameActor extends UntypedAbstractActor {
                 connections.get(playerModel.getUid()).tell(result.toString(), ActorRef.noSender());
             }
         }
+        this.game.getBoard().unflipCards();
+        this.game.save();
     }
 }

@@ -87,18 +87,14 @@ define([cardGame.gamePath + "js/models/game/Game.js",
         /**
          * Get the coordinate of the card.
          * @param game The game
-         * @param card CardOnBoard to look for
+         * @param cardRef Identifier of the card to look for
          * @returns {*} A object {row: row, col: col} containing the position of the card or undefined if it couldn't be found
          * @since 17.12.28
          */
-        static getCardCoordinate(game, card) {
-            if (typeof card !== "object" || !(card instanceof CardOnCase)) {
-                logger.warning("Expected CardOnCase type");
-            }
-
+        static getCardCoordinate(game, cardRef) {
             for (let i = 0; i < game.getBoard().getNbRows(); i++) {
                 for (let j = 0; j < game.getBoard().getNbCols(); j++) {
-                    if (game.getBoard().getCase(i, j) === card) {
+                    if (game.getBoard().getCase(i, j).getCardOnCase() !== undefined && game.getBoard().getCase(i, j).getCardOnCase().getCardOnCaseRef() === cardRef) {
                         return {row: i, col: j};
                     }
                 }
@@ -110,24 +106,17 @@ define([cardGame.gamePath + "js/models/game/Game.js",
         /**
          * Returns the relative position of card1 to card2.
          * @param game The game
-         * @param card1 The card the position is being looked for
-         * @param card2 The card of reference
+         * @param card1Ref The identifier of the card the position is being looked for
+         * @param card2Ref The identifier of card of reference
          * @returns {number} A value among the position enumeration
          * @since 17.12.28
          */
-        static getRelativePositionOf(game, card1, card2) {
-            if (typeof card1 !== "object" || !(card1 instanceof CardOnCase)) {
-                logger.warning("Expected CardOnCase type");
-            }
-            if (typeof card2 !== "object" || !(card1 instanceof CardOnCase)) {
-                logger.warning("Expected CardOnCase type but");
-            }
-
-            let card1Pos = this.getCardCoordinate(game, card1);
-            let card2Pos = this.getCardCoordinate(game, card2);
+        static getRelativePositionOf(game, card1Ref, card2Ref) {
+            let card1Pos = this.getCardCoordinate(game, card1Ref);
+            let card2Pos = this.getCardCoordinate(game, card2Ref);
 
             if (card1Pos === undefined || card2Pos === undefined) {
-                logger.warning("[card1: " + card1.getCard().getName() + "] and/or [card2: " + card2.getCard().getName() + "] are not on the board");
+                logger.warning("[card1: " + card1Ref + "] and/or [card2: " + card2Ref + "] are not on the board");
                 return;
             }
 
@@ -148,8 +137,8 @@ define([cardGame.gamePath + "js/models/game/Game.js",
                 position = this.getCardPositions().TOP_LEFT;
             }
 
-            logger.debug("[card1: " + card1.getCard().getName() + "; row: " + card1Pos.row + "; col: " + card1Pos.col + "]'s relative position to "
-                + "[card2: " + card2.getCard().getName() + "; row: " + card2Pos.row + "; col: " + card2Pos.col + "] is "
+            logger.debug("[card1: " + card1Ref + "; row: " + card1Pos.row + "; col: " + card1Pos.col + "]'s relative position to "
+                + "[card2: " + card2Ref + "; row: " + card2Pos.row + "; col: " + card2Pos.col + "] is "
                 + Object.keys(this.getCardPositions())[position]);
 
             return position;

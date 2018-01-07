@@ -146,4 +146,15 @@ public class CardOnCaseModel extends CardInGameModel {
     public void setFlippingStep(final Integer flippingStep) {
         this.flippingStep = flippingStep;
     }
+
+    /**
+     * Unflip the card.
+     *
+     * @since 18.01.06
+     */
+    public void unflip() {
+        this.flippedByCard = null;
+        this.flippedByRule = null;
+        this.flippingStep = null;
+    }
 }

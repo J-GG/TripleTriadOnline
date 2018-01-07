@@ -10,7 +10,12 @@ define([cardGame.gamePath + "js/views/common/Common.js",
     cardGame.gamePath + "js/toolbox/Key.js",
     cardGame.gamePath + "js/views/common/Sound.js"], function (Common, Key, Sound) {
     return {
-        showFinalScreen(onePlayer) {
+        /**
+         * Manage the final screen.
+         * @param dataNewGame The data to start a new game
+         * @since 18.01.07
+         */
+        showFinalScreen(dataNewGame) {
             cardGame.$container.find(".board__background").hide().fadeIn();
             Common.linearChoice({}, function (e) {
                 switch (e.key) {
@@ -18,7 +23,7 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                         cardGame.$container.find(".board__background").fadeOut("slow", function () {
                             switch (e.choice) {
                                 case 1:
-                                    Routes.get(Routes.getKeys().START_GAME)(onePlayer);
+                                    Routes.get(Routes.getKeys().START_GAME)(dataNewGame);
                                     break;
 
                                 default:

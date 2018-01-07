@@ -20,9 +20,10 @@ define([cardGame.gamePath + "js/views/final-screen/FinalScreenScript.js"], funct
 
             /**
              * Load and display the template and the script.
+             * @param dataNewGame The data to start a new game
              * @since 17.11.04
              */
-            finalScreen(onePlayer) {
+            finalScreen(dataNewGame) {
                 let data = {
                     i18n: cardGame.i18n
                 };
@@ -30,7 +31,7 @@ define([cardGame.gamePath + "js/views/final-screen/FinalScreenScript.js"], funct
                 $.get(TEMPLATE, function (source) {
                     let template = Handlebars.compile(source);
                     cardGame.$container.find(".board__game-area").html(template(data));
-                    FinalScreenScript.showFinalScreen(onePlayer);
+                    FinalScreenScript.showFinalScreen(dataNewGame);
                 });
             }
         }

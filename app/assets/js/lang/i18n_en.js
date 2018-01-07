@@ -37,7 +37,6 @@ define([], function () {
         COMBO: "Combo",
         COMBO_DESCRIPTION: "All cards which were turned over by the Same or Plus rule can turn over surrounding opponent's cards if the former have a greater value",
         MENU: "Menu",
-        WINS: "Wins",
         DRAW: "Draw",
         WIN: "You Win",
         LOSE: "You Lose",
