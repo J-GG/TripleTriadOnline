@@ -10,12 +10,16 @@ import io.ebean.Query;
 import io.ebean.RawSql;
 import io.ebean.RawSqlBuilder;
 import models.entity.game.GameEntity;
-import models.game.*;
+import models.game.CardInDeckModel;
+import models.game.CardOnCaseModel;
+import models.game.GameModel;
+import models.game.PlayerModel;
 import models.membership.MemberModel;
 import play.Logger;
 import play.libs.Json;
+import toolbox.AI;
 import toolbox.CardHelper;
-import toolbox.rules.RulesFactory;
+import toolbox.rules.RuleFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,7 +28,7 @@ import java.util.stream.Collectors;
  * GameActor.
  *
  * @author Jean-Gabriel Genest
- * @version 18.01.01
+ * @version 18.01.08
  * @since 17.12.25
  */
 public class GameActor extends UntypedAbstractActor {
@@ -319,28 +323,18 @@ public class GameActor extends UntypedAbstractActor {
                 throw new RuntimeException("403");
             }
 
-            final Random randomGenerator = new Random();
-
-            final int selectedCardIndex = randomGenerator.nextInt(playerTurn.getDeck().size());
-            cardInDeck = playerTurn.getDeck().get(selectedCardIndex);
-
-            final List<CaseModel> emptyCases = new ArrayList<>();
-            for (final CaseModel caseModel : this.game.getBoard().getCases()) {
-                if (caseModel.getCardOnCase() == null) {
-                    emptyCases.add(caseModel);
-                }
-            }
-            final int selectedCaseIndex = randomGenerator.nextInt(emptyCases.size());
-            final CaseModel selectedCase = emptyCases.get(selectedCaseIndex);
-            row = selectedCase.getRow();
-            col = selectedCase.getCol();
+            final AI ai = new AI(this.game, playerTurn);
+            ai.chooseCardAndCase();
+            cardInDeck = ai.getSelectedCard();
+            row = ai.getSelectedCase().getRow();
+            col = ai.getSelectedCase().getCol();
         }
 
         final int cardInDeckIndex = playerTurn.removeCard(cardInDeck);
         cardInDeck.delete();
 
         this.game.getBoard().getCase(row, col).setCardOnCase(new CardOnCaseModel(cardInDeck));
-        RulesFactory.applyRules(this.game, this.game.getBoard().getCase(row, col));
+        RuleFactory.applyRules(this.game, this.game.getBoard().getCase(row, col));
         this.game.setPlayerTurn(this.game.getNextPlayer(playerTurn));
 
         final boolean gameIsOver = this.game.getBoard().getCases().stream().noneMatch(caseModel -> caseModel.getCardOnCase() == null);
