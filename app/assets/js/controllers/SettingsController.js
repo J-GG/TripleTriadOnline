@@ -7,7 +7,7 @@
  * @version 17.12.19
  */
 define([cardGame.gamePath + "js/views/settings-screen/SettingsScreenScript.js",
-    cardGame.gamePath + "js/models/Rules.js"], function (SettingsScreenScript, Rules) {
+    cardGame.gamePath + "js/toolbox/Rule.js"], function (SettingsScreenScript, Rule) {
     return (function () {
 
         /**
@@ -34,11 +34,11 @@ define([cardGame.gamePath + "js/views/settings-screen/SettingsScreenScript.js",
                         audio: memberSettings.isAudioEnabled(),
                         lang: memberSettings.getLanguage(),
                         difficulty: defaultGameSettings.getDifficulty(),
-                        open: defaultGameSettings.isRuleEnabled(Rules.getRules().OPEN),
-                        war: defaultGameSettings.isRuleEnabled(Rules.getRules().WAR),
-                        same: defaultGameSettings.isRuleEnabled(Rules.getRules().SAME),
-                        plus: defaultGameSettings.isRuleEnabled(Rules.getRules().PLUS),
-                        combo: defaultGameSettings.isRuleEnabled(Rules.getRules().COMBO)
+                        open: defaultGameSettings.isRuleEnabled(Rule.OPEN),
+                        war: defaultGameSettings.isRuleEnabled(Rule.WAR),
+                        same: defaultGameSettings.isRuleEnabled(Rule.SAME),
+                        plus: defaultGameSettings.isRuleEnabled(Rule.PLUS),
+                        combo: defaultGameSettings.isRuleEnabled(Rule.COMBO)
                     };
 
                     cardGame.$container.find(" .board__game-area").html(template(data));

@@ -7,12 +7,11 @@
  * @version 17.11.21
  */
 define([cardGame.gamePath + "js/views/common/Common.js",
-        cardGame.gamePath + "js/models/Settings.js",
         cardGame.gamePath + "js/toolbox/Key.js",
-        cardGame.gamePath + "js/models/Rules.js",
+        cardGame.gamePath + "js/toolbox/Rule.js",
         cardGame.gamePath + "js/views/common/Sound.js",
         cardGame.gamePath + "js/models/membership/Member.js"],
-    function (Common, Settings, Key, Rules, Sound, Member) {
+    function (Common, Key, Rule, Sound, Member) {
         return {
             manageSettings() {
                 Common.linearChoice({unbindOnEnter: false}, function (e) {
@@ -83,23 +82,23 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                                     //Rules
                                     data["enabledRules"] = [];
                                     if (cardGame.$container.find("#rule-open").hasClass("message__check--enabled")) {
-                                        data["enabledRules"].push(Rules.getRules().OPEN);
+                                        data["enabledRules"].push(Rule.OPEN);
                                     }
 
                                     if (cardGame.$container.find("#rule-war").hasClass("message__check--enabled")) {
-                                        data["enabledRules"].push(Rules.getRules().WAR);
+                                        data["enabledRules"].push(Rule.WAR);
                                     }
 
                                     if (cardGame.$container.find("#rule-same").hasClass("message__check--enabled")) {
-                                        data["enabledRules"].push(Rules.getRules().SAME);
+                                        data["enabledRules"].push(Rule.SAME);
                                     }
 
                                     if (cardGame.$container.find("#rule-plus").hasClass("message__check--enabled")) {
-                                        data["enabledRules"].push(Rules.getRules().PLUS);
+                                        data["enabledRules"].push(Rule.PLUS);
                                     }
 
                                     if (cardGame.$container.find("#rule-combo").hasClass("message__check--enabled")) {
-                                        data["enabledRules"].push(Rules.getRules().COMBO);
+                                        data["enabledRules"].push(Rule.COMBO);
                                     }
 
                                     $.post({

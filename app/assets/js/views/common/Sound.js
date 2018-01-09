@@ -6,7 +6,7 @@
  * @since 17.11.12
  * @version 17.11.12
  */
-define([cardGame.gamePath + "js/models/Settings.js"], function (Settings) {
+define([], function () {
     return (function () {
 
         /**

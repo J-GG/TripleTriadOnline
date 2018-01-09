@@ -7,12 +7,10 @@
  * @version 17.12.31
  */
 define([cardGame.gamePath + "js/toolbox/Key.js",
-        cardGame.gamePath + "js/models/Settings.js",
-        cardGame.gamePath + "js/models/Rules.js",
-        cardGame.gamePath + "js/models/Board.js",
+        cardGame.gamePath + "js/toolbox/Rule.js",
         cardGame.gamePath + "js/views/common/Sound.js",
         cardGame.gamePath + "js/toolbox/GameHelper.js"],
-    function (Key, Settings, Rules, Board, Sound, GameHelper) {
+    function (Key, Rule, Sound, GameHelper) {
 
         /**
          * Start or resume a game.
@@ -102,7 +100,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                         });
 
                     /* Hide the cards and show the back if open is disabled */
-                    if (!game.isRuleEnabled(Rules.getRules().OPEN)) {
+                    if (!game.isRuleEnabled(Rule.OPEN)) {
                         /* Hide the cards of the player who is not the member */
                         if (game.getPlayer(i) !== GameHelper.getPlayerOfMember(game)) {
                             cardGame.$container.find(".card--player-" + (i + 1) + "-appearance-deck-" + j).each(function () {
@@ -485,7 +483,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
             let playerPlaying = GameHelper.getPlayerIndexFromRef(game, playerRef) + 1;
 
             //If the rule open is disabled, it's time to reveal the card
-            if (!game.isRuleEnabled(Rules.getRules().OPEN)) {
+            if (!game.isRuleEnabled(Rule.OPEN)) {
                 cardGame.$container.find(".card.card--disappearance-deck-" + indexCardPlayed).each(function () {
                     $(this).css("background-image", $(this).data("background"))
                         .addClass("card--player-" + playerPlaying)
@@ -546,7 +544,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                             steps = cardOnCase.getFlippingStep();
                         }
                         //Count the number of rules applied without counting the simple one and by counting each step only once
-                        if (cardOnCase.getFlippedByRule() !== Rules.getRules().SIMPLE && rules[cardOnCase.getFlippingStep()] === undefined) {
+                        if (cardOnCase.getFlippedByRule() !== Rule.SIMPLE && rules[cardOnCase.getFlippingStep()] === undefined) {
                             nbRulesDisplayed++;
                         }
                         //Associate the step to the rule
@@ -559,7 +557,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
             function flipCard(step) {
                 //Show the rule applying
                 let delayed = 0;
-                if (rules[step] !== Rules.getRules().SIMPLE) {
+                if (rules[step] !== Rule.SIMPLE) {
                     cardGame.$container.find(".board__background").append($("<div>", {
                         class: "text-title text-title--slide",
                         text: rules[step]
