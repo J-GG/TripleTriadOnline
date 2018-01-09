@@ -11,7 +11,7 @@ import java.util.List;
  * SignupForm.
  *
  * @author Jean-Gabriel Genest
- * @version 17.12.21
+ * @version 18.01.09
  * @since 17.12.17
  */
 @Constraints.Validate
@@ -32,6 +32,7 @@ public class SignupForm implements Constraints.Validatable<List<ValidationError>
      *
      * @since 17.12.17
      */
+    @Constraints.MaxLength(255)
     @Constraints.Required
     public String password;
 

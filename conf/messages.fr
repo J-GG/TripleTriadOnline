@@ -1,2 +1,5 @@
 LOGIN.FAILURE=Le nom d'utilisateur et le mot de passe ne correspondent pas
 SIGNUP.DUPLICATE=Le nom d'utilisateur est déjà utilisé
+error.required=Ce champs est requis
+error.minLength=Longueur minimale de {0} caractères
+error.maxLength=Longeur maximale de {0} caractères

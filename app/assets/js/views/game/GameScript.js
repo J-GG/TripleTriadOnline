@@ -22,6 +22,8 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
         function startGame(game) {
             Sound.play(Sound.getKeys().GAME);
 
+            initMenuButton();
+
             let newGame = true;
             for (let i = game.getBoard().getNbRows() - 1; i >= 0; i--) {
                 for (let j = game.getBoard().getNbCols() - 1; j >= 0; j--) {
@@ -60,17 +62,25 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                     let cardOnCase = game.getBoard().getCase(i, j).getCardOnCase();
                     if (cardOnCase) {
                         let playerIndex = GameHelper.getPlayerIndexFromRef(game, cardOnCase.getPlayerRef());
-                        nbCardOnBoardPerPlayer[playerIndex] = nbCardOnBoardPerPlayer[playerIndex] !== undefined ? (nbCardOnBoardPerPlayer[playerIndex] + 1) : 0;
-                        cardGame.$container.find(".card.card--player-" + (playerIndex + 1)).eq(nbCardOnBoardPerPlayer[playerIndex])
-                            .addClass("card--row-" + i + " card--col-" + j)
+                        cardGame.$container.find(".card:not(.card--player-1, .card--player-2)").eq(0)
+                            .addClass("card--player-" + (playerIndex + 1) + " card--row-" + i + " card--col-" + j)
                             .removeClass("card-back")
                             .css({
                                 "background-image": "url('" + cardGame.gamePath + "img/cards/" + cardOnCase.getName().replace(/ /g, '').toLowerCase() + ".jpg')"
                             });
-
                     }
                 }
             }
+        }
+
+        /**
+         * Initialize and manage the menu button.
+         * @since 18.01.09
+         */
+        function initMenuButton() {
+            cardGame.$container.find("#menu-button").on("click", function () {
+                Routes.get(Routes.getKeys().SPLASH_SCREEN)();
+            });
         }
 
         /**
@@ -85,8 +95,8 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                 let deck = game.getPlayer(i).getDeck();
 
                 for (let j = deck.length - 1; j >= 0; j--) {
-                    cardGame.$container.find(".card--player-" + (i + 1)).eq($(this).length - 1 - j)
-                        .addClass("card--out-board card--deck-player-" + (i + 1) + " card--player-" + (i + 1) + "-appearance-deck-" + j)
+                    cardGame.$container.find(".card:not(.card--player-1, .card--player-2, .card--back)").eq(0)
+                        .addClass("card--player-" + (i + 1) + " card--out-board card--deck-player-" + (i + 1) + " card--player-" + (i + 1) + "-appearance-deck-" + j)
                         .css({
                             "background-image": "url('" + cardGame.gamePath + "img/cards/" + deck[j].getName().replace(/ /g, '').toLowerCase() + ".jpg')"
                         });
@@ -95,7 +105,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                     if (!game.isRuleEnabled(Rules.getRules().OPEN)) {
                         /* Hide the cards of the player who is not the member */
                         if (game.getPlayer(i) !== GameHelper.getPlayerOfMember(game)) {
-                            cardGame.$container.find(".card--player-" + (i + 1)).eq($(this).length - 1 - j).each(function () {
+                            cardGame.$container.find(".card--player-" + (i + 1) + "-appearance-deck-" + j).each(function () {
                                 $(this).data("background", $(this).css("background-image"))
                                     .css("background-image", "")
                                     .addClass("card--back")
@@ -641,6 +651,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
                 class: "text-title",
                 text: text
             }));
+            cardGame.$container.find("#menu-button").off("click");
 
             cardGame.$container.keydown(function (e) {
                 switch (e.which) {
