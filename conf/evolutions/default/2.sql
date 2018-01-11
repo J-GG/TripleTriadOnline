@@ -51,7 +51,7 @@ ON CONFLICT (uid)
 
 
 /* LEVEL 1 */
-/*
+
 INSERT INTO
   card (uid, created_at, name, level, top_value, right_value, bottom_value, left_value)
 VALUES ('c2463a0e-b33a-48a8-a1cb-52a9d0a14d9d', now(), 'Geezard', 1, 1, 4, 1, 5)
@@ -205,10 +205,10 @@ ON CONFLICT (uid)
     right_value  = 1,
     bottom_value = 2,
     left_value   = 6;
-*/
+
 
 /* LEVEL 2 */
-/*
+
 INSERT INTO
   card (uid, created_at, name, level, top_value, right_value, bottom_value, left_value)
 VALUES ('365d77e2-bbf9-44e2-99c3-1b791164d187', now(), 'Grat', 2, 7, 1, 3, 1)
@@ -362,7 +362,7 @@ ON CONFLICT (uid)
     right_value  = 2,
     bottom_value = 5,
     left_value   = 3;
-*/
+
 
 # --- !Downs
 
@@ -375,7 +375,7 @@ DELETE FROM card
 WHERE uid = '06cb8927-921e-4147-a60e-a5929441ae44';
 
 /* LEVEL 1*/
-/*DELETE FROM card
+DELETE FROM card
 WHERE uid = 'c2463a0e-b33a-48a8-a1cb-52a9d0a14d9d';
 DELETE FROM card
 WHERE uid = '03260fd7-8a04-4634-9d71-387923d4cf58';
@@ -397,10 +397,10 @@ DELETE FROM card
 WHERE uid = 'ca02105e-7551-4442-836e-5c99186b95de';
 DELETE FROM card
 WHERE uid = '1d8511b6-4d18-46eb-b05b-9e35fb96027c';
-*/
+
 
 /* LEVEL 2 */
-/*
+
 DELETE FROM card
 WHERE uid = '6f90e524-a4b2-41d2-8958-f83fe57f226a';
 DELETE FROM card
@@ -423,4 +423,3 @@ DELETE FROM card
 WHERE uid = 'e55b1b00-64b2-4f40-b53e-a745ea3e5208';
 DELETE FROM card
 WHERE uid = 'c4eccdcc-f775-40ac-80a8-6116c1b83156';
-*/

@@ -20,4 +20,3 @@ LessKeys.compress in Assets := true
 
 pipelineStages := Seq(concat)
 pipelineStages in Assets := Seq(concat)
-

@@ -46,10 +46,8 @@ define([], function () {
                 }
             }
 
-            require([cardGame.nodePath + "node_modules/jquery/dist/jquery.min",
-                cardGame.nodePath + "node_modules/handlebars/dist/handlebars.min",
-                cardGame.nodePath + "node_modules/js-logging/js-logging.browser",
-                cardGame.gamePath + "js/models/membership/Member.js"], function (jquery, handlebars, logging, Member) {
+            require([cardGame.nodePath + "js/plugins/js-logging.browser.min.js",
+                cardGame.gamePath + "js/models/membership/Member.js"], function (logging, Member) {
 
                 window.cardGame.$container = $("#card-game");
                 if (options !== undefined) {
@@ -65,7 +63,6 @@ define([], function () {
 
                 window.logger = logging.colorConsole();
                 logger.setLevel("debug");
-                window.Handlebars = handlebars;
                 Handlebars.registerHelper('ifEquals', function (arg1, arg2, options) {
                     return (arg1 === arg2) ? options.fn(this) : options.inverse(this);
                 });

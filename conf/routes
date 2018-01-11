@@ -2,6 +2,10 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+# Map static resources from the /public folder to the /assets URL path
+GET         /favicon.png         controllers.Assets.at(path="/public", file="favicon.png")
+GET         /assets/*file        controllers.Assets.versioned(path="/public", file)
+
 # Home page
 GET         /                    controllers.ApplicationController.GET_Index
 
@@ -14,6 +18,3 @@ POST        /settings            controllers.SettingsController.POST_Settings
 
 # Game
 GET         /game/play           controllers.GameController.WS_Play
-
-# Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file        controllers.Assets.at(path="/public", file)

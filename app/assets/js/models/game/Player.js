@@ -6,7 +6,7 @@
  * @since 17.12.26
  * @version 17.12.26
  */
-define([cardGame.gamePath + "js/models/game/CardinDeck.js"], function (CardInDeck) {
+define([cardGame.gamePath + "js/models/game/CardInDeck.js"], function (CardInDeck) {
     return class Player {
 
         /**
