@@ -4,7 +4,7 @@
  * A Game.
  * @author Jean-Gabriel Genest
  * @since 17.12.26
- * @version 17.12.31
+ * @version 18.01.14
  */
 define([cardGame.gamePath + "js/models/game/Board.js",
     cardGame.gamePath + "js/models/game/Player.js"], function (Board, Player) {
@@ -17,6 +17,7 @@ define([cardGame.gamePath + "js/models/game/Board.js",
          */
         constructor(game) {
             this.gameRef = game.gameRef;
+            this._createdAt = game._createdAt;
             this.playerTurnRef = game.playerTurnRef;
             this.board = new Board(game.board);
             this.players = [];
@@ -35,6 +36,15 @@ define([cardGame.gamePath + "js/models/game/Board.js",
          */
         getGameRef() {
             return this.gameRef;
+        }
+
+        /**
+         * Get the date of creation
+         * @return {*}  the date of creation
+         * @since 18.01.14
+         */
+        get createdAt() {
+            return this._createdAt;
         }
 
         /**

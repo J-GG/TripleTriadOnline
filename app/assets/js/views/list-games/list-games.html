@@ -1,0 +1,37 @@
+<div class="board__background board__background--game">
+    <div class="message message--large message--list-games">
+        <div class="list-games">
+            <div>Members</div>
+            <div class="list-games__members-list">
+                {{#each members}}
+                <div data-member-ref="{{memberRef}}" class="list-games__member">{{username}}</div>
+                {{/each}}
+            </div>
+
+            <div>Games</div>
+            <div class="list-games__games-list">
+                {{#each games}}
+                <div data-game-ref="{{gameRef}}" class="list-games__game">
+                    <div class="list-games__member-avatar">
+                        <img class="member-avatar member-avatar--logged-unknown" src="/assets/img/avatar-unknown.svg"/>
+                    </div>
+                    {{#each players}}
+                    {{#ifIsCurrentMember memberRef}}
+                    <div>{{username}}</div>
+                    {{/ifIsCurrentMember}}
+                    {{/each}}
+                    <div>{{#toLocalDateTime createdAt}}
+                        {{/toLocalDateTime}}
+                    </div>
+                </div>
+                <hr/>
+                {{/each}}
+            </div>
+            <div class="select-choices list-games__confirm">
+                <p class=" message__confirm">
+                    <span class="select-choices__choice">{{i18n.MENU}}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

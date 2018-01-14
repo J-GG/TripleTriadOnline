@@ -30,7 +30,7 @@ define([cardGame.gamePath + "js/views/game/GameScript.js",
          * @type {number}
          * @since 18.01.01
          */
-        let TIMEOUT = 60000;
+        let TIMEOUT = 30000;
 
         /**
          * Wait for the event from the server regarding the next card to place.

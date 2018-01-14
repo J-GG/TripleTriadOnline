@@ -3,18 +3,19 @@
 # ~~~~
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /favicon.png         controllers.Assets.at(path="/public", file="favicon.png")
-GET         /assets/*file        controllers.Assets.versioned(path="/public", file)
+GET         /favicon.png            controllers.Assets.at(path="/public", file="favicon.png")
+GET         /assets/*file           controllers.Assets.versioned(path="/public", file)
 
 # Home page
-GET         /                    controllers.ApplicationController.GET_Index
+GET         /                       controllers.ApplicationController.GET_Index
 
 # Membership
-POST        /login               controllers.MembershipController.POST_Login
-POST        /signup              controllers.MembershipController.POST_Signup
-GET         /logout              controllers.MembershipController.GET_Logout
-GET         /get-member          controllers.MembershipController.GET_Member
-POST        /settings            controllers.SettingsController.POST_Settings
+POST        /login                  controllers.MembershipController.POST_Login
+POST        /signup                 controllers.MembershipController.POST_Signup
+GET         /logout                 controllers.MembershipController.GET_Logout
+GET         /get-member             controllers.MembershipController.GET_Member
+POST        /settings               controllers.SettingsController.POST_Settings
 
 # Game
-GET         /game/play           controllers.GameController.WS_Play
+GET         /game/play              controllers.GameController.WS_Play
+GET         /game/list-games        controllers.GameController.GET_ListGames

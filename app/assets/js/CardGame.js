@@ -66,6 +66,23 @@ define([], function () {
                 Handlebars.registerHelper('ifEquals', function (arg1, arg2, options) {
                     return (arg1 === arg2) ? options.fn(this) : options.inverse(this);
                 });
+                Handlebars.registerHelper('ifIsCurrentMember', function (arg1, options) {
+                    return (cardGame.member.getMemberRef() !== arg1) ? options.fn(this) : options.inverse(this);
+                });
+                Handlebars.registerHelper('toLocalDateTime', function (arg1, options) {
+                    let date = new Date(arg1);
+                    let dateOptions = {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    };
+
+                    let format = cardGame.member !== undefined ? cardGame.member.getMemberSettings().getLanguage() : "en";
+
+                    return date.toLocaleDateString(format, dateOptions);
+                });
 
                 //Loader
                 $.get(cardGame.gamePath + TEMPLATE_LOADER, function (source) {

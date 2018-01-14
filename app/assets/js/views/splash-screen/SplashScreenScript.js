@@ -27,7 +27,7 @@ define([cardGame.gamePath + "js/views/common/Common.js",
                             Routes.get(Routes.getKeys().START_GAME)();
                             break;
                         case 2:
-                            Routes.get(Routes.getKeys().START_GAME)({member2Ref: "d63b0739-0c70-4ae0-ab60-c49c10e509b0"});
+                            Routes.get(Routes.getKeys().LIST_GAMES)();
                             break;
                         case 3:
                             Routes.get(Routes.getKeys().SETTINGS)();

@@ -5,13 +5,14 @@
  * When a route is invoked, the corresponding method to the key is returned.
  * @author Jean-Gabriel Genest
  * @since 17.10.30
- * @version 17.12.28
+ * @version 18.01.13
  */
 define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
         cardGame.gamePath + "js/controllers/SettingsController.js",
         cardGame.gamePath + "js/controllers/GameController.js",
-        cardGame.gamePath + "js/controllers/FinalScreenController.js"],
-    function (SplashScreenController, SettingsController, GameController, FinalScreenController) {
+        cardGame.gamePath + "js/controllers/FinalScreenController.js",
+        cardGame.gamePath + "js/controllers/ListGamesController.js"],
+    function (SplashScreenController, SettingsController, GameController, FinalScreenController, ListGamesController) {
         return (function () {
 
             /**
@@ -26,6 +27,7 @@ define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
                 LOGOUT: "LOGOUT",
                 SETTINGS: "SETTINGS",
                 START_GAME: "START_GAME",
+                LIST_GAMES: "LIST_GAMES",
                 END_GAME: "END_GAME",
                 PLAYER_PLAYS_CARD: "PLAYER_PLAYS_CARD",
                 FINAL_SCREEN: "FINAL_SCREEN",
@@ -44,6 +46,7 @@ define([cardGame.gamePath + "js/controllers/SplashScreenController.js",
                 [keys.LOGOUT]: SplashScreenController.logout,
                 [keys.SETTINGS]: SettingsController.settings,
                 [keys.START_GAME]: GameController.startGame,
+                [keys.LIST_GAMES]: ListGamesController.listGames,
                 [keys.END_GAME]: GameController.endGame,
                 [keys.PLAYER_PLAYS_CARD]: GameController.playerPlaysCard,
                 [keys.PLAYER_WAIT]: GameController.playerWait,

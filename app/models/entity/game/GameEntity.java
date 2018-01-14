@@ -5,6 +5,7 @@ import models.game.GameModel;
 import models.game.PlayerModel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
  * GameEntity.
  *
  * @author Jean-Gabriel Genest
- * @version 17.12.26
+ * @version 18.01.14
  * @since 17.12.24
  */
 public class GameEntity {
@@ -24,6 +25,13 @@ public class GameEntity {
      * @since 17.12.24
      */
     private final UUID gameRef;
+
+    /**
+     * The date the game was started.
+     *
+     * @since 18.01.14
+     */
+    private final Date createdAt;
 
     /**
      * The identifier of the player to whom it's the turn.
@@ -76,6 +84,7 @@ public class GameEntity {
      */
     public GameEntity(final GameModel gameModel) {
         this.gameRef = gameModel.getUid();
+        this.createdAt = gameModel.getCreatedAt();
         this.playerTurnRef = gameModel.getPlayerTurn().getUid();
         this.players = new ArrayList<>();
         for (final PlayerModel player : gameModel.getPlayers()) {
@@ -95,6 +104,16 @@ public class GameEntity {
      */
     public UUID getGameRef() {
         return this.gameRef;
+    }
+
+    /**
+     * Return the date of creation.
+     *
+     * @return the date of creation
+     * @since 18.01.14
+     */
+    public Date getCreatedAt() {
+        return this.createdAt;
     }
 
     /**

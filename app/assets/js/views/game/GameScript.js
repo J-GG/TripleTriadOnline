@@ -77,6 +77,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
          */
         function initMenuButton() {
             cardGame.$container.find("#menu-button").on("click", function () {
+                cardGame.$container.off("keydown");
                 Routes.get(Routes.getKeys().SPLASH_SCREEN)();
             });
         }
@@ -691,8 +692,8 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
             let playerIndex = GameHelper.getPlayerIndexFromRef(game, playerRef);
 
             cardGame.$container.find(".player-name__avatar--player-" + (playerIndex + 1))
-                .removeClass("player-name__avatar--logged-out")
-                .addClass("player-name__avatar--logged-in");
+                .removeClass("member-avatar--logged-out")
+                .addClass("member-avatar--logged-in");
         }
 
         /**
@@ -705,8 +706,8 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
             let playerIndex = GameHelper.getPlayerIndexFromRef(game, playerRef);
 
             cardGame.$container.find(".player-name__avatar--player-" + (playerIndex + 1))
-                .removeClass("player-name__avatar--logged-in")
-                .addClass("player-name__avatar--logged-out");
+                .removeClass("member-avatar--logged-in")
+                .addClass("member-avatar--logged-out");
         }
 
         return {

@@ -13,7 +13,7 @@ import java.util.UUID;
  * BaseModel.
  *
  * @author Jean-Gabriel Genest
- * @version 17.12.17
+ * @version 18.01.14
  * @since 17.12.17
  */
 @MappedSuperclass
@@ -51,5 +51,15 @@ public abstract class BaseModel extends Model {
      */
     public UUID getUid() {
         return this.uid;
+    }
+
+    /**
+     * The date of creation.
+     *
+     * @return the date of creation
+     * @since 18.01.14
+     */
+    public Date getCreatedAt() {
+        return this.createdAt;
     }
 }
