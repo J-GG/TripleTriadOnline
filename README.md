@@ -1,15 +1,20 @@
 # TripleTriad
 
-Triple Triad is a mini card game released along Final Fantasy VIII where two players fight with cards on a 3X3 board. Various rules can be enabled to make the game more or less complex.
+Triple Triad is a mini card game released along Final Fantasy VIII where two players fight with cards on a 3X3 board.  
+The goal for each player is to own the most cards at the end of the game by "flipping" the opponent's cards. Various rules can be enabled to make the game more or less complex.
 ## The Game
 
-| <img src="https://preview.ibb.co/iPkb56/splashscreen.png" width="200" />  | <img src="https://preview.ibb.co/gvW5yR/game.png" width="200"/> | <img src="https://preview.ibb.co/gn2pQ6/game1.png" width="200" /> | <img src="https://preview.ibb.co/jxrik6/settings.png" width="200" />
-| :---:  | :---:  | :---:  | :---:  |
-| *Main menu*  | *Game against the AI*  | *PvP* | *Settings*
+| <img src="https://image.ibb.co/i9wqnR/signup.png" width="200" />  | <img src="https://image.ibb.co/jyOvnR/loggedinmenu.png" width="200" /> | <img src="https://preview.ibb.co/btHwSR/settings.png" width="200" />
+| :---: | :---:  | :---: |
+| *Sign up form* | *Main menu* | *Settings*
 
-This version of the game uses the same graphics as the original one to which the gameplay has been changed to make it more suitable to a standalone game.  
+| <img src="https://image.ibb.co/fTGRu6/2players_Choice.png" width="200" /> | <img src="https://preview.ibb.co/cuTjgm/2players.png" width="200" /> | <img src="https://image.ibb.co/kjNAMm/1player.png" width="200"/>
+| :---: | :---: | :---: |
+| *Choose a game/new opponent* | *PvP* | *Game against the AI*
 
-**Demo** - https://triple-triad.000webhostapp.com
+This game is mainly based on the graphics of the original game.
+
+**Demo** - https://triple-triad-online.herokuapp.com
 
 ### Controls
 
@@ -25,7 +30,7 @@ A Triple Triad card is a card with four numbers on its top, left, right and bott
 Blue cards belong to the first player and red cards to the second one.
 ### Rules
 
-The purpose of each player is to own as many cards of their color as they can at the end of the game. Basically, a player takes (flips) the opponent's card by playing a card with a higher number on the side facing the opponent's card.
+ Basically, a player takes (flips) the opponent's card by playing a card with a higher number on the side facing the opponent's card.
 
 However, more rules can be enabled in the settings:  
 * **Open** - Each player can see the opponent's cards.
@@ -38,6 +43,8 @@ However, more rules can be enabled in the settings:
 
 ### Stack
 
+* [Java 8](https://www.java.com)
+* [Play Framework](https://www.playframework.com/)(Akka, Ebean, Twirl...)
 * HTML/CSS/Javascript (ES6)
 * [jquery](https://jquery.com)
 * [RequireJS](http://requirejs.org)
@@ -48,40 +55,26 @@ However, more rules can be enabled in the settings:
 
 ### Key features
 
-* **Client-side only** - two players share the same computer
+* **Online game** - two human players can play online
+* **Saved game** - save automatically games to be resumed later
 * **MVC architecture**
-* **Responsive design** - adapts perfectly to the container
-* **Embeddable** - designed to be embedded in another website
+* **Responsive design** - adapts perfectly to the screen
 * **Multi-languages** - English and French are currently supported
 
 ## Installation
 
 * Clone the repository
 ```
-git clone https://github.com/J-GG/TripleTriad.git
+git clone https://github.com/J-GG/TripleTriadOnline.git
 ```
-* Install the dependencies with npm
-```
-npm install
-```
-* Install and run a local server
-```
-npm install -g http-server
-http-server
-```
-* Open **dist/index.html** to start the game
+
+* Start the application with play
 
 <br />
 
-* To rebuild the entire **dist** folder for production (minified files), launch this gulp task
+
+* For development purpose, install the dependencies with npm and run the watcher to update the css file
 ```
-gulp build-prod
-```
-* To rebuild the entire **dist** folder for development (**not** minified files), launch this gulp task
-```
-gulp build-dev
-```
-* For development purpose, run the watcher to update the **dist** folder in real time
-```
-gulp watch
+npm install
+gulp dev
 ```

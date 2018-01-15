@@ -1,5 +1,4 @@
 const gulp = require('gulp');
-const del = require("del");
 const less = require("gulp-less");
 const rename = require("gulp-rename");
 const cleanCSS = require("gulp-clean-css");
