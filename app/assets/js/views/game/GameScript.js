@@ -78,6 +78,7 @@ define([cardGame.gamePath + "js/toolbox/Key.js",
         function initMenuButton() {
             cardGame.$container.find("#menu-button").on("click", function () {
                 cardGame.$container.off("keydown");
+                Sound.stopAll();
                 Routes.get(Routes.getKeys().SPLASH_SCREEN)();
             });
         }
